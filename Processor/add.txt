@@ -1,0 +1,4 @@
+LDI 1 1
+LDI 2 2
+ADD 0 2 1
+HLT
