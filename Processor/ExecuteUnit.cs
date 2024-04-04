@@ -20,7 +20,6 @@ namespace Processor
             pipelineRegister.ExecutionDelegate();
             if (pipelineRegister.opcode == "HLT")
             {
-                Console.WriteLine("here");
                 finished = true;
             }
             if (branchInstructions.Contains(pipelineRegister.opcode))

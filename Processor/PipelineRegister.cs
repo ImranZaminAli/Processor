@@ -17,6 +17,8 @@ namespace Processor
         public Unit result;
         public int cycles;
         public int pc;
+        public bool stall;
+        public bool flush;
         public Execution ExecutionDelegate { get; set; }
 
         public bool Empty { get => empty; set => empty = value; }
@@ -27,12 +29,16 @@ namespace Processor
         public PipelineRegister()
         {
             empty = true;
+            stall = false;
+            flush = false;
             operands = new Unit[0];
         }
         public PipelineRegister(Instruction instruction)
         {
             this.instruction = instruction;
             empty = false;
+            stall = false;
+            flush = false;
         }
 
         public override string ToString()

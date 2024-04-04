@@ -44,30 +44,56 @@ namespace Processor
             writeUnit = new WriteUnit();
         }
 
+        private bool transferPipelineReg(ref PipelineRegister oldReg, PipelineRegister newReg){
+            if (!newReg.stall)
+            {
+                oldReg = newReg;
+                return true;
+            }
+            return false;
+        }
+
+        private void transferPipeline() {
+            if (!transferPipelineReg(ref pipelineRegisters[3], pipelineRegisters[2]))
+                return;
+
+            if (!transferPipelineReg(ref pipelineRegisters[2], pipelineRegisters[1]))
+                return;
+
+            if (!transferPipelineReg(ref pipelineRegisters[1], pipelineRegisters[0]))
+                return;
+            else
+                pipelineRegisters[0] = new PipelineRegister();
+        }
+
         public void Run()
         {
             while (!finished) 
             {
                 // Instruction instruction;
-                if (!pipelineRegisters[0].Empty)
+                if (!pipelineRegisters[0].Empty || !pipelineRegisters[0].stall)
                 {
                     pc = fetchUnit.Run(pc, pipelineRegisters[0]);
                 }
 
-                if (!pipelineRegisters[1].Empty)
+                if (!pipelineRegisters[1].Empty || !pipelineRegisters[1].stall)
                 {
                     pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
                 }
 
-                if (!pipelineRegisters[2].Empty)
+                if (!pipelineRegisters[2].Empty || !pipelineRegisters[2].stall)
                 {
                     pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
                 }
 
-                if (!pipelineRegisters[3].Empty)
+                if (!pipelineRegisters[3].Empty || !pipelineRegisters[3].stall)
                 {
                     pipelineRegisters[3] = writeUnit.Run(pipelineRegisters[3], ref cycles);
                 }
+
+                
+                transferPipeline();
+                
 
                 // not pipelined
                 //pipelineRegisters[0] = new PipelineRegister();
