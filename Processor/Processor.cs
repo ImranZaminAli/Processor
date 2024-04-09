@@ -20,6 +20,7 @@ namespace Processor
         private FetchUnit fetchUnit;
         private DecodeUnit decodeUnit;
         private ExecuteUnit executeUnit;
+        private MemUnit memUnit;
         private WriteUnit writeUnit;
 
         public Processor(Instruction[] instructions)
@@ -35,12 +36,13 @@ namespace Processor
                 memory[i] = new MemoryUnit();
             }
             labelMap = new Dictionary<int, int>();
-            pipelineRegisters = new PipelineRegister[4];
+            pipelineRegisters = new PipelineRegister[5];
             for (int i = 0;i < pipelineRegisters.Length ;i++)
                 pipelineRegisters[i] = new PipelineRegister();
             fetchUnit = new FetchUnit(instructions);
             decodeUnit = new DecodeUnit();
             executeUnit = new ExecuteUnit();
+            memUnit = new MemUnit();
             writeUnit = new WriteUnit();
         }
 
@@ -48,12 +50,15 @@ namespace Processor
             if (!newReg.stall)
             {
                 oldReg = newReg;
+                
                 return true;
             }
             return false;
         }
 
         private void transferPipeline() {
+            if (!transferPipelineReg(ref pipelineRegisters[4], pipelineRegisters[3]))
+                return;
             if (!transferPipelineReg(ref pipelineRegisters[3], pipelineRegisters[2]))
                 return;
 
@@ -88,18 +93,24 @@ namespace Processor
 
                 if (!pipelineRegisters[3].Empty || !pipelineRegisters[3].stall)
                 {
-                    pipelineRegisters[3] = writeUnit.Run(pipelineRegisters[3], ref cycles);
+                    pipelineRegisters[3] = memUnit.Run(pipelineRegisters[3]);
+                }
+                
+                if (!pipelineRegisters[4].Empty || !pipelineRegisters[4].stall)
+                {
+                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles);
                 }
 
-                
+
                 transferPipeline();
-                
+
 
                 // not pipelined
                 //pipelineRegisters[0] = new PipelineRegister();
                 //pc = fetchUnit.Run(pc, pipelineRegisters[0]);
                 //pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
                 //pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
+                //pipelineRegisters[0] = memUnit.Run(pipelineRegisters[0]);
                 //pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
 
             }

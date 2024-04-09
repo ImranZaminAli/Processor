@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace Processor
 {
+    enum OpType
+    {
+        ALU,
+        MEM,
+        BR,
+        NA
+    }
     class PipelineRegister
     {
         private Instruction instruction;
@@ -14,12 +21,15 @@ namespace Processor
         public string opcode;
         public Unit[] operands;
         public delegate void Execution();
+        public delegate void MemAccess();
         public Unit result;
         public int cycles;
         public int pc;
         public bool stall;
         public bool flush;
+        public OpType opType;
         public Execution ExecutionDelegate { get; set; }
+        public MemAccess MemAccessDelegate { get; set; }
 
         public bool Empty { get => empty; set => empty = value; }
         public Instruction Instruction { get => instruction; set => instruction = value; }
@@ -32,13 +42,31 @@ namespace Processor
             stall = false;
             flush = false;
             operands = new Unit[0];
+            opType = OpType.NA;
+            ExecutionDelegate = delegate ()
+            {
+                ;
+            };
+            MemAccessDelegate = delegate ()
+            {
+                ;
+            };
         }
-        public PipelineRegister(Instruction instruction)
+        public PipelineRegister(Instruction instruction) : this()
         {
             this.instruction = instruction;
-            empty = false;
-            stall = false;
-            flush = false;
+            //empty = false;
+            //stall = false;
+            //flush = false;
+            //opType = OpType.NA;
+            //ExecutionDelegate = delegate ()
+            //{
+            //    ;
+            //};
+            //MemAccessDelegate = delegate ()
+            //{
+            //    ;
+            //};
         }
 
         public override string ToString()

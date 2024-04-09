@@ -240,9 +240,10 @@ namespace Processor
 
                 case "LD":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.MEM;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = memory[instructionOperands[1]];
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
@@ -252,9 +253,10 @@ namespace Processor
 
                 case "LDI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.MEM;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
@@ -264,9 +266,10 @@ namespace Processor
 
                 case "ST":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.MEM;
                     operands[0] = memory[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;

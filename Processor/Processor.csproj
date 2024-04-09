@@ -47,6 +47,7 @@
     <Compile Include="ExecuteUnit.cs" />
     <Compile Include="FetchUnit.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="MemUnit.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="PipelineRegister.cs" />
     <Compile Include="Processor.cs" />

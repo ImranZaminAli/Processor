@@ -25,6 +25,7 @@ namespace Processor
             {
                 pipelineRegister.Instruction = instructions[pc];
                 pipelineRegister.pc = pc;
+                pipelineRegister.Empty = false;
                 return pc + 1;
             }
             return pc;
