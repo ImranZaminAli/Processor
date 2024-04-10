@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,19 +12,26 @@ namespace Processor
         public int value;
         public bool inUse;
 
+        public int dependencies;
+
+
         public Unit(int value)
         {
             this.value = value;
             inUse = false;
+            dependencies = 0;
         }
 
         public Unit()
         {
             value = 0;
             inUse = false;
+            dependencies = 0;
         }
 
         public void Free() => inUse = false ;
+
+        public bool checkFree() => dependencies == 0;
 
         public virtual void Toggle() => inUse = !inUse;
 
@@ -42,6 +50,7 @@ namespace Processor
             RegisterUnit registerUnit = new RegisterUnit();
             registerUnit.value = value;
             registerUnit.inUse = inUse;
+            registerUnit.dependencies = dependencies;
             return registerUnit;
         }
     }
@@ -53,6 +62,7 @@ namespace Processor
             MemoryUnit memoryUnit = new MemoryUnit();
             memoryUnit.value = value;
             memoryUnit.inUse = inUse;
+            memoryUnit.dependencies = dependencies;
             return memoryUnit;
         }
     }
@@ -68,6 +78,7 @@ namespace Processor
             ImmediateUnit immediateUnit = new ImmediateUnit();
             immediateUnit.value = value;
             immediateUnit.inUse = inUse;
+            immediateUnit.dependencies = dependencies;
             return immediateUnit;
         }
     }

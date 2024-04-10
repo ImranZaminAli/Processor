@@ -17,6 +17,12 @@ namespace Processor
             busy = false;
         }
 
+        public void Flush(PipelineRegister pipelineRegister){
+            if(pipelineRegister.opcode != "LABEL"){
+                pipelineRegister.Instruction = new Instruction();
+            }
+        }
+
         public bool Busy { get => busy; set => busy = value; }
 
         public int Run(int pc, PipelineRegister pipelineRegister)

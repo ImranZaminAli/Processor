@@ -37,7 +37,7 @@ namespace Processor
             }
             labelMap = new Dictionary<int, int>();
             pipelineRegisters = new PipelineRegister[5];
-            for (int i = 0;i < pipelineRegisters.Length ;i++)
+            for (int i = 0; i < pipelineRegisters.Length; i++)
                 pipelineRegisters[i] = new PipelineRegister();
             fetchUnit = new FetchUnit(instructions);
             decodeUnit = new DecodeUnit();
@@ -71,6 +71,18 @@ namespace Processor
                 pipelineRegisters[0] = new PipelineRegister();
         }
 
+        public void CheckStalled()
+        {
+            foreach (var pipelineRegister in pipelineRegisters)
+            {
+                if (pipelineRegister.opType == OpType.NA)
+                    pipelineRegister.stall = false;
+                else
+                    pipelineRegister.stall = pipelineRegister.operands[0].checkFree();
+                
+            }
+        }
+
         public void Run()
         {
             while (!finished) 
@@ -89,6 +101,12 @@ namespace Processor
                 if (!pipelineRegisters[2].Empty || !pipelineRegisters[2].stall)
                 {
                     pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
+                    if(pipelineRegisters[2].flush)
+                    {
+                        fetchUnit.Flush(pipelineRegisters[0]);
+                        decodeUnit.Flush(pipelineRegisters[1]);
+                        pipelineRegisters[2].flush = false;
+                    }
                 }
 
                 if (!pipelineRegisters[3].Empty || !pipelineRegisters[3].stall)
@@ -101,7 +119,7 @@ namespace Processor
                     pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles);
                 }
 
-
+                CheckStalled();
                 transferPipeline();
 
 

@@ -34,7 +34,8 @@ namespace Processor
 
         public Instruction()
         {
-            
+            opcode = "NOP";
+            operands = new int[0];
         }
 
         public void SetOpcode(string opcode) => this.Opcode = opcode;

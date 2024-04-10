@@ -17,6 +17,7 @@ namespace Processor
         {
             if (!notWriteInstructions.Contains(pipelineRegister.opcode))
                 pipelineRegister.operands[0].value = pipelineRegister.result.value;
+            pipelineRegister.operands[0].dependencies--;
             cycles += pipelineRegister.cycles;
             return pipelineRegister;
         }

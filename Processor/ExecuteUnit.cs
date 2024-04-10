@@ -22,8 +22,9 @@ namespace Processor
             {
                 finished = true;
             }
-            if (branchInstructions.Contains(pipelineRegister.opcode))
+            if (branchInstructions.Contains(pipelineRegister.opcode)){
                 pc = pipelineRegister.pc;
+            }
             return pipelineRegister;
         }
     }

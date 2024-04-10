@@ -16,6 +16,17 @@ namespace Processor
 
         public DecodeUnit() => busy = false;
 
+        public void Flush(PipelineRegister pipelineRegister){
+            if(pipelineRegister.operands.Length > 0){
+                pipelineRegister.operands[0].dependencies--;
+            }
+            pipelineRegister.opcode = "NOP";
+            pipelineRegister.opType = OpType.NA;
+            pipelineRegister.operands = new Unit[0];
+            pipelineRegister.ExecutionDelegate = delegate () { };
+            pipelineRegister.MemAccessDelegate = delegate () { };
+        }
+
         // TODO: LD, ST, 
         public PipelineRegister Run(PipelineRegister pipelineRegister, Unit[] registers, Unit[] memory, Dictionary<int, int> labelMap)
         {
@@ -34,206 +45,270 @@ namespace Processor
             {
                 case "ADD":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value + operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "SUB":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value - operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "MUL":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value * operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "ADDI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value + operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "SUBI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value - operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "MULI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value * operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "AND":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value & operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "OR":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value | operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "NOT":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == 1 ? 0 : 1;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "EQ":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == operands[2].value ? 1 : 0;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "LT":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value < operands[2].value ? 1 : 0;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "GT":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value > operands[2].value ? 1 : 0;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "ANDI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value & operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "ORI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value | operands[2].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "NOTI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == 1 ? 0 : 1;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "EQI":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == operands[2].value ? 1 : 0;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
@@ -243,10 +318,13 @@ namespace Processor
                     pipelineRegister.opType = OpType.MEM;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = memory[instructionOperands[1]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
@@ -256,10 +334,13 @@ namespace Processor
                     pipelineRegister.opType = OpType.MEM;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
@@ -269,80 +350,111 @@ namespace Processor
                     pipelineRegister.opType = OpType.MEM;
                     operands[0] = memory[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.MemAccessDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "MOV":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "MOVIND":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[registers[instructionOperands[1]].value];
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "JMP":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.BR;
                     operands[0] = new ImmediateUnit();
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.pc = labelMap[operands[0].value];
+                        pipelineRegister.flush = true;
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "BR":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.BR;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         if (operands[0].value == 1)
+                        {
                             pipelineRegister.pc = labelMap[operands[1].value];
+                            pipelineRegister.flush = true;
+                        }
                         else
                             pipelineRegister.pc++;
+
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "GOTO":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.BR;
                     operands[0] = new ImmediateUnit(instructionOperands[0]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate () 
                     {
                         pipelineRegister.pc = operands[0].value;
+                        pipelineRegister.flush = true;
                     };
                     pipelineRegister.cycles = 1;
                     break;
 
                 case "REF":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.ALU;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
+                        
                     };
                     pipelineRegister.cycles = 1;
                     break;
@@ -353,7 +465,10 @@ namespace Processor
 
                 case "LABEL":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.NA;
                     operands[0] = new ImmediateUnit(instructionOperands[0]);
+                    pipelineRegister.stall = operands[0].checkFree();
+                    operands[0].dependencies++;
                     pipelineRegister.ExecutionDelegate = delegate () 
                     {
                         if (!labelMap.ContainsKey(operands[0].value))
@@ -364,6 +479,7 @@ namespace Processor
 
                 case "HLT":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.NA;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         ;
@@ -372,6 +488,7 @@ namespace Processor
                     break;
                 case "NOP":
                     pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.opType = OpType.NA;
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         ;
