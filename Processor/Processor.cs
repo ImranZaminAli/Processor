@@ -36,7 +36,7 @@ namespace Processor
                 memory[i] = new MemoryUnit();
             }
             labelMap = new Dictionary<int, int>();
-            pipelineRegisters = new PipelineRegister[4];
+            pipelineRegisters = new PipelineRegister[5];
             for (int i = 0;i < pipelineRegisters.Length ;i++)
                 pipelineRegisters[i] = new PipelineRegister();
             fetchUnit = new FetchUnit(instructions);
@@ -46,38 +46,61 @@ namespace Processor
             writeUnit = new WriteUnit();
         }
 
+        public void advancePipeline()
+        {
+            for(int i = pipelineRegisters.Length - 1; i > 0; i--)
+            {
+                pipelineRegisters[i] = pipelineRegisters[i - 1];
+            }
+            pipelineRegisters[0] = new PipelineRegister();
+        }
+
+
         public void Run()
         {
             while (!finished) 
             {
+
+
+
+
                 // Instruction instruction;
                 //if (!pipelineRegisters[0].Empty)
                 //{
                 //    pc = fetchUnit.Run(pc, pipelineRegisters[0]);
                 //}
 
-                //if (!pipelineRegisters[1].Empty)
-                //{
-                //    pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
-                //}
+                pc = fetchUnit.Run(pc, pipelineRegisters[0]);
 
-                //if (!pipelineRegisters[2].Empty)
-                //{
-                //    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
-                //}
+                if (!pipelineRegisters[1].Empty)
+                {
+                    pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
+                }
 
-                //if (!pipelineRegisters[3].Empty)
-                //{
-                //    pipelineRegisters[3] = writeUnit.Run(pipelineRegisters[3], ref cycles);
-                //}
+                if (!pipelineRegisters[2].Empty)
+                {
+                    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
+                }
+
+                if(!pipelineRegisters[3].Empty)
+                {
+                    pipelineRegisters[3] = memUnit.Run(pipelineRegisters[3]);
+                }
+
+                if (!pipelineRegisters[4].Empty)
+                {
+                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles);
+                }
+
+                advancePipeline();
 
                 // not pipelined
-                pipelineRegisters[0] = new PipelineRegister();
-                pc = fetchUnit.Run(pc, pipelineRegisters[0]);
-                pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
-                pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
-                pipelineRegisters[0] = memUnit.Run(pipelineRegisters[0]);
-                pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
+                //pipelineRegisters[0] = new PipelineRegister();
+                //pc = fetchUnit.Run(pc, pipelineRegisters[0]);
+                //pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
+                //pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
+                //pipelineRegisters[0] = memUnit.Run(pipelineRegisters[0]);
+                //pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
 
             }
 

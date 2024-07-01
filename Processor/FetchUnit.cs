@@ -23,9 +23,20 @@ namespace Processor
         {
             if (!busy)
             {
-                pipelineRegister.Instruction = instructions[pc];
-                pipelineRegister.pc = pc;
-                return pc + 1;
+                try
+                {
+                    pipelineRegister.Instruction = instructions[pc];
+                    pipelineRegister.pc = pc;
+                    pipelineRegister.Empty = false;
+                    return pc + 1;
+                }
+                catch(IndexOutOfRangeException)
+                {
+                    pipelineRegister.Instruction = new Instruction();
+                    pipelineRegister.pc = pc;
+                    pipelineRegister.Empty = true;
+                    return pc;
+                }
             }
             return pc;
         }

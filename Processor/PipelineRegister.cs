@@ -18,6 +18,7 @@ namespace Processor
         public Unit result;
         public int cycles;
         public int pc;
+        bool stalled;
         public Execution ExecutionDelegate { get; set; }
 
         public Mem MemDelegate { get; set; }
@@ -31,6 +32,7 @@ namespace Processor
         {
             empty = true;
             operands = new Unit[0];
+            stalled = false;
 
             ExecutionDelegate = delegate () { ; };
             MemDelegate = delegate () { ; };
@@ -39,6 +41,7 @@ namespace Processor
         {
             this.instruction = instruction;
             empty = false;
+            stalled = false;
 
             ExecutionDelegate = delegate () {; };
             MemDelegate = delegate () { ; };
