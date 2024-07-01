@@ -49,32 +49,32 @@ namespace Processor
             while (!finished) 
             {
                 // Instruction instruction;
-                if (!pipelineRegisters[0].Empty)
-                {
-                    pc = fetchUnit.Run(pc, pipelineRegisters[0]);
-                }
+                //if (!pipelineRegisters[0].Empty)
+                //{
+                //    pc = fetchUnit.Run(pc, pipelineRegisters[0]);
+                //}
 
-                if (!pipelineRegisters[1].Empty)
-                {
-                    pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
-                }
+                //if (!pipelineRegisters[1].Empty)
+                //{
+                //    pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
+                //}
 
-                if (!pipelineRegisters[2].Empty)
-                {
-                    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
-                }
+                //if (!pipelineRegisters[2].Empty)
+                //{
+                //    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
+                //}
 
-                if (!pipelineRegisters[3].Empty)
-                {
-                    pipelineRegisters[3] = writeUnit.Run(pipelineRegisters[3], ref cycles);
-                }
+                //if (!pipelineRegisters[3].Empty)
+                //{
+                //    pipelineRegisters[3] = writeUnit.Run(pipelineRegisters[3], ref cycles);
+                //}
 
                 // not pipelined
-                //pipelineRegisters[0] = new PipelineRegister();
-                //pc = fetchUnit.Run(pc, pipelineRegisters[0]);
-                //pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
-                //pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
-                //pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
+                pipelineRegisters[0] = new PipelineRegister();
+                pc = fetchUnit.Run(pc, pipelineRegisters[0]);
+                pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
+                pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
+                pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
 
             }
 

@@ -11,7 +11,7 @@ namespace Processor
         private string[] notWriteInstructions;
         public WriteUnit()
         {
-            notWriteInstructions = new string[] { "JMP", "BR", "GOTO", "LABEL", "HLT"};
+            notWriteInstructions = new string[] { "JMP", "BR", "GOTO", "LABEL", "HLT", "NOP"};
         }
         public PipelineRegister Run(PipelineRegister pipelineRegister, ref int cycles)
         {

@@ -368,6 +368,15 @@ namespace Processor
                     pipelineRegister.cycles = 1;
                     break;
 
+                case "NOP":
+                    pipelineRegister.opcode = instruction.Opcode;
+                    pipelineRegister.ExecutionDelegate = delegate ()
+                    {
+                        ;
+                    };
+                    pipelineRegister.cycles = 1;
+                    break;
+
             }
 
             return pipelineRegister;
