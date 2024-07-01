@@ -242,7 +242,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = memory[instructionOperands[1]];
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
@@ -254,7 +254,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
@@ -266,7 +266,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = memory[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
@@ -336,7 +336,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
-                    pipelineRegister.ExecutionDelegate = delegate ()
+                    pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;

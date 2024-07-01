@@ -14,10 +14,13 @@ namespace Processor
         public string opcode;
         public Unit[] operands;
         public delegate void Execution();
+        public delegate void Mem();
         public Unit result;
         public int cycles;
         public int pc;
         public Execution ExecutionDelegate { get; set; }
+
+        public Mem MemDelegate { get; set; }
 
         public bool Empty { get => empty; set => empty = value; }
         public Instruction Instruction { get => instruction; set => instruction = value; }
@@ -28,11 +31,17 @@ namespace Processor
         {
             empty = true;
             operands = new Unit[0];
+
+            ExecutionDelegate = delegate () { ; };
+            MemDelegate = delegate () { ; };
         }
         public PipelineRegister(Instruction instruction)
         {
             this.instruction = instruction;
             empty = false;
+
+            ExecutionDelegate = delegate () {; };
+            MemDelegate = delegate () { ; };
         }
 
         public override string ToString()

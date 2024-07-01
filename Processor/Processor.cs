@@ -20,6 +20,7 @@ namespace Processor
         private FetchUnit fetchUnit;
         private DecodeUnit decodeUnit;
         private ExecuteUnit executeUnit;
+        private MemUnit memUnit;
         private WriteUnit writeUnit;
 
         public Processor(Instruction[] instructions)
@@ -41,6 +42,7 @@ namespace Processor
             fetchUnit = new FetchUnit(instructions);
             decodeUnit = new DecodeUnit();
             executeUnit = new ExecuteUnit();
+            memUnit = new MemUnit();
             writeUnit = new WriteUnit();
         }
 
@@ -74,6 +76,7 @@ namespace Processor
                 pc = fetchUnit.Run(pc, pipelineRegisters[0]);
                 pipelineRegisters[0] = decodeUnit.Run(pipelineRegisters[0], registers, memory, labelMap);
                 pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
+                pipelineRegisters[0] = memUnit.Run(pipelineRegisters[0]);
                 pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
 
             }
