@@ -20,6 +20,7 @@ namespace Processor
         public int pc;
         private bool stalled;
         private bool busy;
+        private bool flushed;
         public Execution ExecutionDelegate { get; set; }
 
         public Mem MemDelegate { get; set; }
@@ -30,6 +31,7 @@ namespace Processor
 
         public Instruction Instruction { get => instruction; set => instruction = value; }
         public bool Busy { get => busy; set => busy = value; }
+        public bool Flushed { get => flushed; set => flushed = value; }
 
         public void SetResult(object result) => this.result = (Unit) result;
 
@@ -39,6 +41,7 @@ namespace Processor
             operands = new Unit[0];
             stalled = false;
             busy = false;
+            flushed = false;
             executionCycles = 0;
             ExecutionDelegate = delegate () { ; };
             MemDelegate = delegate () { ; };
@@ -50,6 +53,7 @@ namespace Processor
             stalled = false;
             executionCycles = 0;
             busy = false;
+            flushed = false;
             ExecutionDelegate = delegate () {; };
             MemDelegate = delegate () { ; };
         }

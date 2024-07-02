@@ -343,8 +343,9 @@ namespace Processor
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.pc = labelMap[operands[0].value];
+                        pipelineRegister.Flushed = true;
                     };
-                    pipelineRegister.executionCycles = 1;
+                    pipelineRegister.executionCycles = 3;
                     break;
 
                 case "BR":
@@ -352,17 +353,20 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
 
-                    operands[0].TryLock(pipelineRegister);
+                    //operands[0].TryLock(pipelineRegister);
                     pipelineRegister.Stalled = operands[0].locked;
 
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         if (operands[0].value == 1)
+                        {
                             pipelineRegister.pc = labelMap[operands[1].value];
+                            pipelineRegister.Flushed = true;
+                        }
                         else
                             pipelineRegister.pc++;
                     };
-                    pipelineRegister.executionCycles = 3;
+                    pipelineRegister.executionCycles = 4;
                     break;
 
                 case "GOTO":
@@ -370,9 +374,10 @@ namespace Processor
                     operands[0] = new ImmediateUnit(instructionOperands[0]);
                     pipelineRegister.ExecutionDelegate = delegate () 
                     {
-                        pipelineRegister.pc = operands[0].value;
+                        pipelineRegister.pc = operands[0].value - 1;
+                        pipelineRegister.Flushed = true;
                     };
-                    pipelineRegister.executionCycles = 1;
+                    pipelineRegister.executionCycles = 2;
                     break;
 
                 case "REF":

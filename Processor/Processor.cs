@@ -46,7 +46,16 @@ namespace Processor
             writeUnit = new WriteUnit();
         }
 
-        public void advancePipeline()
+        private void CheckFlushed() 
+        {
+            if (pipelineRegisters[2].Flushed)
+            {
+                pipelineRegisters[0] = new PipelineRegister();
+                pipelineRegisters[1] = new PipelineRegister();
+            }
+        }
+
+        private void AdvancePipeline()
         {
             for(int i = pipelineRegisters.Length - 1; i > 0; i--)
             {
@@ -89,7 +98,8 @@ namespace Processor
                     pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref finished);
                 }
 
-                advancePipeline();
+                CheckFlushed();
+                AdvancePipeline();
 
                 // not pipelined
                 //pipelineRegisters[0] = new PipelineRegister();

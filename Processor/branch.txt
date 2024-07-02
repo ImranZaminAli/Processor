@@ -1,0 +1,6 @@
+LDI 0 1
+LDI 1 3
+GOTO 5
+LDI 3 5
+LDI 2 7
+HLT
