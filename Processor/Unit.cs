@@ -48,7 +48,7 @@ namespace Processor
         {
             if (!locked)
                 Lock(pipelineRegister);
-            else
+            else if(lockedBy != pipelineRegister)
                 Console.WriteLine("\n\n\nTried locking value when already locked");
         }
 
