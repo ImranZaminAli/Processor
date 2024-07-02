@@ -24,6 +24,8 @@ namespace Processor
         public Mem MemDelegate { get; set; }
 
         public bool Empty { get => empty; set => empty = value; }
+
+        public bool Stalled { get => stalled; set => stalled = value; }
         public Instruction Instruction { get => instruction; set => instruction = value; }
 
         public void SetResult(object result) => this.result = (Unit) result;

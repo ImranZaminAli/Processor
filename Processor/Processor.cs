@@ -50,7 +50,10 @@ namespace Processor
         {
             for(int i = pipelineRegisters.Length - 1; i > 0; i--)
             {
+                if (pipelineRegisters[i-1].Stalled)
+                    return;
                 pipelineRegisters[i] = pipelineRegisters[i - 1];
+                pipelineRegisters[i - 1] = new PipelineRegister();
             }
             pipelineRegisters[0] = new PipelineRegister();
         }
@@ -61,35 +64,29 @@ namespace Processor
             while (!finished) 
             {
 
-
-
-
-                // Instruction instruction;
-                //if (!pipelineRegisters[0].Empty)
-                //{
-                //    pc = fetchUnit.Run(pc, pipelineRegisters[0]);
-                //}
-
-                pc = fetchUnit.Run(pc, pipelineRegisters[0]);
+                if (pipelineRegisters[0].Empty)
+                {
+                    pc = fetchUnit.Run(pc, pipelineRegisters[0]);
+                }
 
                 if (!pipelineRegisters[1].Empty)
                 {
                     pipelineRegisters[1] = decodeUnit.Run(pipelineRegisters[1], registers, memory, labelMap);
                 }
 
-                if (!pipelineRegisters[2].Empty)
+                if (!pipelineRegisters[2].Empty && !pipelineRegisters[2].Stalled)
                 {
-                    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref finished, ref pc);
+                    pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref pc);
                 }
 
-                if(!pipelineRegisters[3].Empty)
+                if(!pipelineRegisters[3].Empty && !pipelineRegisters[3].Stalled)
                 {
                     pipelineRegisters[3] = memUnit.Run(pipelineRegisters[3]);
                 }
 
-                if (!pipelineRegisters[4].Empty)
+                if (!pipelineRegisters[4].Empty && !pipelineRegisters[4].Stalled)
                 {
-                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles);
+                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles, ref finished);
                 }
 
                 advancePipeline();

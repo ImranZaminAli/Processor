@@ -16,6 +16,24 @@ namespace Processor
 
         public DecodeUnit() => busy = false;
 
+        private void CheckRawDependency(PipelineRegister pipelineRegister, params Unit[] operands)
+        {
+            if (operands.Skip(1).Any(x => x.locked))
+                pipelineRegister.Stalled = true;
+            else
+            {
+                pipelineRegister.Stalled = false;
+                operands[0].TryLock(pipelineRegister);
+                
+            }
+            //if(operands.Any(operand => operand.locked))
+            //    pipelineRegisteer.Stalled = true;
+            //else{
+            //    pipelineRegisteer.Stalled = false;
+            //    operands.ToList().ForEach(operand => operand.locked = true);
+            //}
+        }
+
         // TODO: LD, ST, 
         public PipelineRegister Run(PipelineRegister pipelineRegister, Unit[] registers, Unit[] memory, Dictionary<int, int> labelMap)
         {
@@ -37,6 +55,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -50,6 +69,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -63,6 +83,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -76,6 +97,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -89,6 +111,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -102,6 +125,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -115,6 +139,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -128,6 +153,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -140,6 +166,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -153,6 +180,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -166,6 +194,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -179,6 +208,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = registers[instructionOperands[2]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -192,6 +222,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -205,6 +236,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -217,6 +249,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -230,6 +263,7 @@ namespace Processor
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
                     operands[2] = new ImmediateUnit(instructionOperands[2]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -242,6 +276,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = memory[instructionOperands[1]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -254,6 +289,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -266,6 +302,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = memory[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -278,6 +315,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[instructionOperands[1]];
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -290,6 +328,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = registers[registers[instructionOperands[1]].value];
+                    CheckRawDependency(pipelineRegister, operands[0], operands[1], registers[instructionOperands[1]]);
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());
@@ -312,6 +351,10 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+
+                    operands[0].TryLock(pipelineRegister);
+                    pipelineRegister.Stalled = operands[0].locked;
+
                     pipelineRegister.ExecutionDelegate = delegate ()
                     {
                         if (operands[0].value == 1)
@@ -336,6 +379,7 @@ namespace Processor
                     pipelineRegister.opcode = instruction.Opcode;
                     operands[0] = registers[instructionOperands[0]];
                     operands[1] = new ImmediateUnit(instructionOperands[1]);
+                    CheckRawDependency(pipelineRegister, operands);
                     pipelineRegister.MemDelegate = delegate ()
                     {
                         pipelineRegister.SetResult(operands[0].Clone());

@@ -9,30 +9,57 @@ namespace Processor
     abstract class Unit : ICloneable
     {
         public int value;
-        public bool inUse;
+        public bool locked;
+        public PipelineRegister lockedBy;
 
         public Unit(int value)
         {
             this.value = value;
-            inUse = false;
+            locked = false;
+            lockedBy = null;
         }
 
         public Unit()
         {
             value = 0;
-            inUse = false;
+            locked = false;
+            lockedBy = null;
         }
 
-        public void Free() => inUse = false ;
+        private void Free()
+        {
+            locked = false;
+            lockedBy = null;
+        }
 
-        public virtual void Toggle() => inUse = !inUse;
+        public void TryFree(PipelineRegister pipelineRegister)
+        {
+            if (locked && lockedBy == pipelineRegister)
+                Free();
+        }
+
+        private void Lock(PipelineRegister pipelineRegister)
+        {
+            locked = true;
+            lockedBy = pipelineRegister;
+        }
+
+        public void TryLock(PipelineRegister pipelineRegister)
+        {
+            if (!locked)
+                Lock(pipelineRegister);
+            else
+                Console.WriteLine("\n\n\nTried locking value when already locked");
+        }
+
+        public virtual void Toggle() => locked = !locked;
 
         //public virtual override Unit Clone() => new Unit();
         public abstract object Clone();
 
         public override string ToString()
         {
-            return value.ToString() + " " + inUse.ToString();
+            return value.ToString() + " " + locked.ToString();
         }
     }
 
@@ -41,7 +68,7 @@ namespace Processor
         {
             RegisterUnit registerUnit = new RegisterUnit();
             registerUnit.value = value;
-            registerUnit.inUse = inUse;
+            registerUnit.locked = locked;
             return registerUnit;
         }
     }
@@ -52,7 +79,7 @@ namespace Processor
         {
             MemoryUnit memoryUnit = new MemoryUnit();
             memoryUnit.value = value;
-            memoryUnit.inUse = inUse;
+            memoryUnit.locked = locked;
             return memoryUnit;
         }
     }
@@ -61,13 +88,13 @@ namespace Processor
 
         public ImmediateUnit() : base() { }
         public ImmediateUnit(int value) : base(value) { }
-        public override void Toggle() => inUse = false;
+        public override void Toggle() => locked = false;
 
         public override object Clone()
         {
             ImmediateUnit immediateUnit = new ImmediateUnit();
             immediateUnit.value = value;
-            immediateUnit.inUse = inUse;
+            immediateUnit.locked = locked;
             return immediateUnit;
         }
     }

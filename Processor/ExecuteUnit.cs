@@ -15,14 +15,9 @@ namespace Processor
             branchInstructions = new string[]{ "GOTO", "JMP", "BR"};
         }
 
-        public PipelineRegister Run(PipelineRegister pipelineRegister, ref bool finished, ref int pc) 
+        public PipelineRegister Run(PipelineRegister pipelineRegister, ref int pc) 
         {
             pipelineRegister.ExecutionDelegate();
-            if (pipelineRegister.opcode == "HLT")
-            {
-                Console.WriteLine("here");
-                finished = true;
-            }
             if (branchInstructions.Contains(pipelineRegister.opcode))
                 pc = pipelineRegister.pc;
             return pipelineRegister;
