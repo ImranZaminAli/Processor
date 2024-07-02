@@ -50,7 +50,7 @@ namespace Processor
         {
             for(int i = pipelineRegisters.Length - 1; i > 0; i--)
             {
-                if (pipelineRegisters[i-1].Stalled)
+                if (pipelineRegisters[i-1].Stalled || pipelineRegisters[i-1].Busy)
                     return;
                 pipelineRegisters[i] = pipelineRegisters[i - 1];
                 pipelineRegisters[i - 1] = new PipelineRegister();
@@ -86,7 +86,7 @@ namespace Processor
 
                 if (!pipelineRegisters[4].Empty && !pipelineRegisters[4].Stalled)
                 {
-                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref cycles, ref finished);
+                    pipelineRegisters[4] = writeUnit.Run(pipelineRegisters[4], ref finished);
                 }
 
                 advancePipeline();
@@ -98,9 +98,9 @@ namespace Processor
                 //pipelineRegisters[0] = executeUnit.Run(pipelineRegisters[0], ref finished, ref pc);
                 //pipelineRegisters[0] = memUnit.Run(pipelineRegisters[0]);
                 //pipelineRegisters[0] = writeUnit.Run(pipelineRegisters[0], ref cycles);
-
+                cycles++;
             }
-
+            Console.WriteLine("Cycles: {0}", cycles);
             Console.WriteLine("{0} {1} {2}, {3}", registers[0].value, registers[1].value, registers[2].value, registers[3].value);
         }
     }

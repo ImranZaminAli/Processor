@@ -1,0 +1,4 @@
+LDI 1 5
+LDI 2 12
+SUB 0 2 1
+HLT

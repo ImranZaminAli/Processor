@@ -61,7 +61,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value + operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "SUB":
@@ -75,7 +75,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value - operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 3;
                     break;
 
                 case "MUL":
@@ -89,7 +89,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value * operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "ADDI":
@@ -103,7 +103,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value + operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "SUBI":
@@ -117,7 +117,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value - operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "MULI":
@@ -131,7 +131,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value * operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "AND":
@@ -145,7 +145,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value & operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "OR":
@@ -159,7 +159,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value | operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "NOT":
@@ -172,7 +172,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == 1 ? 0 : 1;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "EQ":
@@ -186,7 +186,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == operands[2].value ? 1 : 0;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "LT":
@@ -200,7 +200,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value < operands[2].value ? 1 : 0;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "GT":
@@ -214,7 +214,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value > operands[2].value ? 1 : 0;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "ANDI":
@@ -228,7 +228,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value & operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "ORI":
@@ -242,7 +242,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value | operands[2].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "NOTI":
@@ -255,7 +255,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == 1 ? 0 : 1;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "EQI":
@@ -269,7 +269,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value == operands[2].value ? 1 : 0;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "LD":
@@ -282,7 +282,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "LDI":
@@ -295,7 +295,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "ST":
@@ -308,7 +308,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "MOV":
@@ -321,7 +321,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "MOVIND":
@@ -334,7 +334,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "JMP":
@@ -344,7 +344,7 @@ namespace Processor
                     {
                         pipelineRegister.pc = labelMap[operands[0].value];
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "BR":
@@ -362,7 +362,7 @@ namespace Processor
                         else
                             pipelineRegister.pc++;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "GOTO":
@@ -372,7 +372,7 @@ namespace Processor
                     {
                         pipelineRegister.pc = operands[0].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "REF":
@@ -385,7 +385,7 @@ namespace Processor
                         pipelineRegister.SetResult(operands[0].Clone());
                         pipelineRegister.result.value = operands[1].value;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 //case "DREF":
@@ -400,7 +400,7 @@ namespace Processor
                         if (!labelMap.ContainsKey(operands[0].value))
                             labelMap.Add(operands[0].value, pipelineRegister.pc);
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "HLT":
@@ -409,7 +409,7 @@ namespace Processor
                     {
                         ;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
                 case "NOP":
@@ -418,7 +418,7 @@ namespace Processor
                     {
                         ;
                     };
-                    pipelineRegister.cycles = 1;
+                    pipelineRegister.executionCycles = 1;
                     break;
 
             }

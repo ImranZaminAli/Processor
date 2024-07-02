@@ -17,9 +17,16 @@ namespace Processor
 
         public PipelineRegister Run(PipelineRegister pipelineRegister, ref int pc) 
         {
-            pipelineRegister.ExecutionDelegate();
-            if (branchInstructions.Contains(pipelineRegister.opcode))
-                pc = pipelineRegister.pc;
+            pipelineRegister.executionCycles--;
+            if (pipelineRegister.executionCycles == 0)
+            {
+                pipelineRegister.Busy = false;
+                pipelineRegister.ExecutionDelegate();
+                if (branchInstructions.Contains(pipelineRegister.opcode))
+                    pc = pipelineRegister.pc;
+            }
+            else
+                pipelineRegister.Busy = true;
             return pipelineRegister;
         }
     }
