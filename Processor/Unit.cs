@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Processor
 {
-    abstract class Unit : ICloneable
+    abstract class Store 
+    { }
+    abstract class Unit : Store, ICloneable
     {
         public int value;
         public bool locked;
@@ -96,6 +98,14 @@ namespace Processor
             immediateUnit.value = value;
             immediateUnit.locked = locked;
             return immediateUnit;
+        }
+    }
+
+    class NullUnit : Unit
+    {
+        public override object Clone()
+        {
+            return null;
         }
     }
 }

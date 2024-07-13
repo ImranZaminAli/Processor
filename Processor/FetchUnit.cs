@@ -19,6 +19,20 @@ namespace Processor
 
         public bool Busy { get => busy; set => busy = value; }
 
+        public Instruction Run(ref int pc)
+        {
+            try
+            {
+                Instruction instruction = instructions[pc];
+                pc++;
+                return instruction;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return null;
+            }
+        }
+
         public int Run(int pc, PipelineRegister pipelineRegister)
         {
             if (!busy)

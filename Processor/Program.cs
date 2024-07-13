@@ -14,6 +14,7 @@ namespace Processor
             
             Processor processor = new Processor(instructions);
             processor.Run();
+            Console.WriteLine("finished");
             Console.ReadKey();
         }
     }

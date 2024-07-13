@@ -9,23 +9,60 @@ namespace Processor
 {
     class Processor
     {
-        private Instruction[] instructions;
+        const int robLength = 6;
+        const int reservationStationLength = 2;
+
         private int pc;
         private int cycles;
         private bool finished;
         private Unit[] registers;
         private Unit[] memory;
+        private Rat rat;
         private Dictionary<int, int> labelMap; // label to line
         private PipelineRegister[] pipelineRegisters;
+        private ReservationStation reservationStation;
+        private Rob rob;
         private FetchUnit fetchUnit;
-        private DecodeUnit decodeUnit;
+        private IssueUnit issueUnit;
+        private DispatchUnit dispatchUnit;
         private ExecuteUnit executeUnit;
         private MemUnit memUnit;
         private WriteUnit writeUnit;
+        
+        // old
+
+        //private FetchUnit fetchUnit;
+        private DecodeUnit decodeUnit = new DecodeUnit();
+        //private ExecuteUnit executeUnit;
+        //private MemUnit memUnit;
+        //private WriteUnit writeUnit;
+
+        public Processor(Instruction[] instructions, bool old)
+        {
+            pc = 0;
+            finished = false;
+            registers = new Unit[32];
+            memory = new Unit[32];
+            //rat = new RobEntry[32];
+            for (int i = 0; i < 32; i++)
+            {
+                registers[i] = new RegisterUnit();
+                memory[i] = new MemoryUnit();
+                //rat[i] = null;
+            }
+            labelMap = new Dictionary<int, int>();
+            pipelineRegisters = new PipelineRegister[5];
+            for (int i = 0; i < pipelineRegisters.Length; i++)
+                pipelineRegisters[i] = new PipelineRegister();
+            fetchUnit = new FetchUnit(instructions);
+            decodeUnit = new DecodeUnit();
+            executeUnit = new ExecuteUnit();
+            memUnit = new MemUnit();
+            writeUnit = new WriteUnit();
+        }
 
         public Processor(Instruction[] instructions)
         {
-            this.instructions = instructions;
             pc = 0;
             finished = false;
             registers = new Unit[32];
@@ -35,15 +72,132 @@ namespace Processor
                 registers[i] = new RegisterUnit();
                 memory[i] = new MemoryUnit();
             }
+            rat = new Rat(registers);
             labelMap = new Dictionary<int, int>();
-            pipelineRegisters = new PipelineRegister[5];
-            for (int i = 0;i < pipelineRegisters.Length ;i++)
-                pipelineRegisters[i] = new PipelineRegister();
+            rob = new Rob(robLength);
+            reservationStation = new ReservationStation(reservationStationLength);
             fetchUnit = new FetchUnit(instructions);
-            decodeUnit = new DecodeUnit();
+            issueUnit = new IssueUnit();
+            dispatchUnit = new DispatchUnit();
             executeUnit = new ExecuteUnit();
             memUnit = new MemUnit();
             writeUnit = new WriteUnit();
+            // fetch, decode/issue, dispatch, execute + broadcast, write, commit
+
+
+        }
+
+        public void Run()
+        {
+            Instruction issueInput = null;
+            ReservationStationEntry dispatchOutput = null;
+            //ReservationStationEntry dispatchInput = null;
+            ReservationStationEntry executeInput = null;
+            ReservationStationEntry executeOutput = null;
+            ReservationStationEntry broadcastInput = null;
+            bool flushed = false;
+            while (!finished)
+            {
+                /* 
+                 
+                    fetch:
+                    see if there is a free reservation station and if there is a free rob entry
+                    if there is get the next instruction, else do nothing
+
+                 */
+                Instruction fetchOutput = null;
+                if (!reservationStation.CheckFull() && !rob.CheckFull())
+                {
+                    fetchOutput = fetchUnit.Run(ref pc);
+                    issueUnit.Run(fetchOutput, rat, reservationStation, rob);
+
+                }
+
+                //else
+                //    issueUnit.Run(reservationStation, rob);
+
+                /* 
+                 
+                    dispatch:
+                    check if there is a reservation station that has an instruction ready. 
+                    if so dispatch the instruction and free the reservation station.
+                    else do nothing
+
+                */
+
+
+
+                /*
+                 
+                    execute:
+                    execute the instruction over however many cycles it takes
+                 
+                 */
+
+                //if (executeUnit.busy == false)
+                //{
+                //    executeInput = dispatchUnit.Run(reservationStation); 
+                //    if(executeInput != null)
+                //        executeOutput = executeUnit.Run(executeInput);
+                //    if (executeOutput != null)
+                //        executeInput = null;
+                //}
+
+                if (executeUnit.busy == false)
+                    executeInput = dispatchUnit.Run(reservationStation);
+                if (executeInput != null)
+                    executeOutput = executeUnit.Run(executeInput);
+                if (executeOutput != null)
+                    executeInput = null;
+
+
+
+                /*
+                 
+                    write back:
+                    broadcast execution result to the reservation stations and rob
+                 
+                 */
+
+                if (broadcastInput != null)
+                {
+                    reservationStation.Broadcast(broadcastInput);
+                    broadcastInput.destination.value = broadcastInput.result;
+                    broadcastInput.destination.done = true;
+                    broadcastInput = null;
+                    //rob.Broadcast(broadcastInput);
+                }
+
+                /*
+                 
+                    commit:
+                    if the commit pointer is at a done instruction update the register file
+                    if required also update the rat
+                    flush mispredictions
+                 
+                */
+
+                rob.Commit(ref pc, rat, ref flushed, ref finished);
+
+                if(flushed){
+                    issueInput = null;
+                    executeInput = null;
+                    broadcastInput = null;
+                    dispatchOutput = null;
+                    executeOutput = null;
+                    executeUnit.busy = false;
+                    flushed = false;
+                }
+
+                if(executeOutput != null)
+                {
+                    broadcastInput = executeOutput;
+                    executeOutput = null;
+                }
+                
+
+            }
+            Console.WriteLine("{0} {1} {2}, {3}", registers[0].value, registers[1].value, registers[2].value, registers[3].value);
         }
 
         private void CheckFlushed() 
@@ -68,9 +222,11 @@ namespace Processor
         }
 
 
-        public void Run()
+        // old
+
+        public void Run(bool old)
         {
-            while (!finished) 
+            while (!finished)
             {
 
                 if (pipelineRegisters[0].Empty)
@@ -88,7 +244,7 @@ namespace Processor
                     pipelineRegisters[2] = executeUnit.Run(pipelineRegisters[2], ref pc);
                 }
 
-                if(!pipelineRegisters[3].Empty && !pipelineRegisters[3].Stalled)
+                if (!pipelineRegisters[3].Empty && !pipelineRegisters[3].Stalled)
                 {
                     pipelineRegisters[3] = memUnit.Run(pipelineRegisters[3]);
                 }
