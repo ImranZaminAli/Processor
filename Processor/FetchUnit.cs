@@ -19,12 +19,19 @@ namespace Processor
 
         public bool Busy { get => busy; set => busy = value; }
 
-        public Instruction Run(ref int pc)
+        public Instruction Run(ref int pc, Btb btb)
         {
             try
             {
                 Instruction instruction = instructions[pc];
-                pc++;
+                //pc++;
+                if (btb.Contains(pc))
+                {
+                    int prediction = btb.Predict(pc);
+                    pc = prediction == -1? pc + 1 : prediction-1;
+                }
+                else
+                    pc++;
                 return instruction;
             }
             catch (IndexOutOfRangeException)

@@ -8,7 +8,7 @@ namespace Processor
 {
     class IssueUnit
     {
-        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob)
+        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, int pc, Btb btb)
         {
             if (instruction == null)
                 return;
@@ -16,6 +16,7 @@ namespace Processor
             entry.isFree = false;
             entry.opcode = instruction.Opcode;
             entry.instruction = instruction;
+            entry.pc = instruction.pc;
             switch(entry.opcode)
             {
                 case "ADD":
@@ -195,6 +196,10 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
+                    if (!btb.Contains(instruction.pc))
+                    {
+                        btb.Add(instruction.pc, instruction.Operand[0]);
+                    }
                     entry.cycles = 4;
                     break;
                 case "BR":
@@ -203,6 +208,10 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[1];
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1 ? inputs[1] : -1;};
+                    if (!btb.Contains(instruction.pc))
+                    {
+                        btb.Add(instruction.pc, instruction.Operand[1]);
+                    }
                     entry.cycles = 5;
                     break;
                 case "HLT":
@@ -227,7 +236,7 @@ namespace Processor
             }
 
             entry.destination.opcode = entry.opcode;
-
+            entry.destination.pc = instruction.pc;
             //this.Run(reservationStation, rob);
         }
 

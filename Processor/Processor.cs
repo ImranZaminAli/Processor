@@ -11,6 +11,8 @@ namespace Processor
     {
         const int robLength = 6;
         const int reservationStationLength = 2;
+        const int btbLength = 2;
+        const bool twoBitBtb = false;
 
         private int pc;
         private int cycles;
@@ -28,6 +30,7 @@ namespace Processor
         private ExecuteUnit executeUnit;
         private MemUnit memUnit;
         private WriteUnit writeUnit;
+        private Btb btb;
         
         // old
 
@@ -59,6 +62,7 @@ namespace Processor
             executeUnit = new ExecuteUnit();
             memUnit = new MemUnit();
             writeUnit = new WriteUnit();
+            btb = new Btb(btbLength, twoBitBtb);
         }
 
         public Processor(Instruction[] instructions)
@@ -82,6 +86,7 @@ namespace Processor
             executeUnit = new ExecuteUnit();
             memUnit = new MemUnit();
             writeUnit = new WriteUnit();
+            btb = new Btb(btbLength, twoBitBtb);
             // fetch, decode/issue, dispatch, execute + broadcast, write, commit
 
 
@@ -108,8 +113,8 @@ namespace Processor
                 Instruction fetchOutput = null;
                 if (!reservationStation.CheckFull() && !rob.CheckFull())
                 {
-                    fetchOutput = fetchUnit.Run(ref pc);
-                    issueUnit.Run(fetchOutput, rat, reservationStation, rob);
+                    fetchOutput = fetchUnit.Run(ref pc, btb);
+                    issueUnit.Run(fetchOutput, rat, reservationStation, rob, pc, btb);
 
                 }
 
@@ -177,7 +182,7 @@ namespace Processor
                  
                 */
 
-                rob.Commit(ref pc, rat, ref flushed, ref finished);
+                rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
 
                 if(flushed){
                     issueInput = null;

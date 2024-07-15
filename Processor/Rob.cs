@@ -12,6 +12,16 @@ namespace Processor
         private RobEntry[] table;
         int commitPointer;
         int issuePointer;
+        string[] writeOperations = new string[]{
+                "ADD", "SUB", "MUL",
+                "ADDI", "SUBI", "MULI",
+                "AND", "OR", "NOT",
+                "ANDI", "ORI", "NOTI",
+                "EQ", "EQI",
+                "LT", "GT",
+                "LDI", "MOV"
+                };
+        string[] branchOperations = new string[] { "JMP", "BR" };
         public Rob(int length)
         {
             tableLength = length;
@@ -40,43 +50,60 @@ namespace Processor
             return entry;
         }
 
-        public void Commit(ref int pc, Rat rat, ref bool flushed, ref bool finished)
+        public void Flush(Rat rat, ref bool flushed)
         {
-            string[] writeOperations = new string[]{ 
-                "ADD", "SUB", "MUL",
-                "ADDI", "SUBI", "MULI",
-                "AND", "OR", "NOT",
-                "ANDI", "ORI", "NOTI",
-                "EQ", "EQI",
-                "LT", "GT",
-                "LDI", "MOV"
-                };
-            string[] branchOperations = new string[]{ "JMP", "BR" };
+            while (commitPointer != issuePointer)
+            {
+                table[commitPointer].Free();
+                commitPointer = Inc(commitPointer);
+            }
+            rat.Flush();
+            flushed = true;
+        }
+
+        public void Commit(ref int pc, Rat rat, ref bool flushed, ref bool finished, Btb btb)
+        {
+            
             // not every instruction writes
             var entry = table[commitPointer];
 
             if (!entry.done)
                 return;
 
-            if(entry.value == -1)
-                Console.WriteLine("here");
-
             if (writeOperations.Contains(entry.opcode))
                 rat.Commit(entry);
             else if (branchOperations.Contains(entry.opcode))
             {
-                if (entry.value != -1)
+                var btbEntry = btb.Find(entry.pc);
+                bool setup = btbEntry.confidence != null;
+                if (!setup && entry.value != -1)
                 {
+                    btbEntry.Setup(entry.value);
+                    btb.Commit();
                     pc = entry.value - 1;
                     // flush
-                    while (commitPointer != issuePointer)
-                    {
-                        table[commitPointer].Free();
-                        commitPointer = Inc(commitPointer);
-                    }
-                    rat.Flush();
-                    flushed = true;
+                    Flush(rat, ref flushed);
                     return;
+                }
+                else if(!setup)
+                {
+                    btbEntry.Setup(entry.value);
+                    btb.Commit();
+                }
+                else
+                {
+                    int predicted = (int) btbEntry.predicted;
+                    if(predicted == entry.value)
+                    {
+                        btbEntry.IncConfidence();
+                    }
+                    else
+                    {
+                        btbEntry.DecConfidence();
+                        Flush(rat, ref flushed);
+                        pc = predicted == -1 ? btbEntry.branchedPc - 1 : btbEntry.instructionPc + 1;
+                        return;
+                    }
                 }
             }
             else if (entry.opcode == "HLT")
@@ -131,6 +158,7 @@ namespace Processor
         public int value;
 
         public string opcode;
+        public int pc;
 
         public RobEntry()
         {
@@ -138,6 +166,7 @@ namespace Processor
             destination = -1;
             value = -1;
             opcode = null;
+            pc = -1;
         }
 
         public void Free()
@@ -146,6 +175,7 @@ namespace Processor
             value = -1;
             done = false;
             opcode = null;
+            pc = -1;
         }
 
         //public void Commit()

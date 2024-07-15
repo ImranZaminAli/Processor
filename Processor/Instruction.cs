@@ -15,11 +15,12 @@ namespace Processor
         private string instructionLine;
         private string opcode;
         private int[] operands;
+        public int pc;
         public string InstructionLine { get => instructionLine; private set => instructionLine = value; }
         public string Opcode { get => opcode; set => opcode = value; }
         public int[] Operand { get => operands; set => operands = value; }
 
-        public Instruction(string instruction)
+        public Instruction(string instruction, int pc)
         {
             InstructionLine = instruction;
             string[] tokens = instruction.Split(' ');
@@ -28,6 +29,7 @@ namespace Processor
             for(int i = 0; i < tokens.Length - 1; i++)
             {
                 operands[i] = int.TryParse(tokens[i+1], out int parsed) ? parsed : tokens[i+1].GetHashCode();
+                this.pc = pc;
             }
 
         }

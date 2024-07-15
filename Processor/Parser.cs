@@ -30,7 +30,7 @@ namespace Processor
                 //string line = reader.ReadLine();
                 for(int i  = 0; i < lines.Length; i++)
                 {
-                    Instruction instruction = new Instruction(lines[i]);
+                    Instruction instruction = new Instruction(lines[i], i);
                     instructions[i] = instruction;
                 }
 

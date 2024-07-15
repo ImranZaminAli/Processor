@@ -66,6 +66,7 @@ namespace Processor
         public Execution execution;
         public Mem mem;
         public Instruction instruction;
+        public int pc;
 
         public int result;
 
@@ -85,6 +86,7 @@ namespace Processor
             cycles = 0;
             result = -1;
             instruction = null;
+            pc = -1;
         }
 
         public bool CheckReady()
@@ -104,6 +106,7 @@ namespace Processor
             cycles = 0;
             result = -1;
             instruction = null;
+            pc = -1;
         }
 
         public object Clone()
@@ -119,6 +122,7 @@ namespace Processor
             clone.cycles = cycles;
             clone.result = result;
             clone.instruction = instruction;
+            clone.pc = pc;
             return clone;
         }
     }
