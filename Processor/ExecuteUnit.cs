@@ -10,10 +10,17 @@ namespace Processor
     {
         private string[] branchInstructions;
         public bool busy;
+        public Optype optype;
+        public ReservationStationEntry input;
         public ExecuteUnit()
         {
             branchInstructions = new string[]{ "GOTO", "JMP", "BR"};
             busy = false;
+        }
+
+        public ExecuteUnit(Optype optype)
+        {
+            this.optype = optype;
         }
 
         public ReservationStationEntry Run(ReservationStationEntry entry) 
@@ -28,6 +35,23 @@ namespace Processor
                     Console.WriteLine("here");
                 busy = false;
                 return (ReservationStationEntry) entry.Clone();
+            }
+            return null;
+        }
+
+        public ReservationStationEntry Run() 
+        {
+
+            busy = true;
+            input.cycles--;
+            if (input.cycles == 0)
+            {
+                // entry.isFree = true;
+                input.result = input.execution(input.values);
+                if(input.result == -1)
+                    Console.WriteLine("here");
+                busy = false;
+                return (ReservationStationEntry) input.Clone();
             }
             return null;
         }

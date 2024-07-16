@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,12 @@ namespace Processor
     class Processor
     {
         const int robLength = 6;
-        const int reservationStationLength = 2;
+        const int reservationStationLength = 4;
         const int btbLength = 2;
-        const bool twoBitBtb = false;
+        const bool twoBitBtb = true;
+        const int numAlu = 2;
+        const int numLoadStoreUnit = 1;
+        const int numBranchUnit = 1;
 
         private int pc;
         private int cycles;
@@ -28,9 +32,15 @@ namespace Processor
         private IssueUnit issueUnit;
         private DispatchUnit dispatchUnit;
         private ExecuteUnit executeUnit;
+        private ExecuteUnit[] alus;
+        private ExecuteUnit[] loadStoreUnit;
+
+        private ExecuteUnit[] branchUnit;
         private MemUnit memUnit;
         private WriteUnit writeUnit;
         private Btb btb;
+
+        private Queue<ReservationStationEntry> executeFinishedQueue = new Queue<ReservationStationEntry>();
         
         // old
 
@@ -87,6 +97,15 @@ namespace Processor
             memUnit = new MemUnit();
             writeUnit = new WriteUnit();
             btb = new Btb(btbLength, twoBitBtb);
+            alus = new ExecuteUnit[numAlu];
+            for (int i = 0; i < numAlu; i++)
+                alus[i] = new ExecuteUnit(Optype.Alu);
+            loadStoreUnit = new ExecuteUnit[numLoadStoreUnit];
+            for (int i = 0; i < numLoadStoreUnit; i++)
+                loadStoreUnit[i] = new ExecuteUnit(Optype.LoadStore);
+            branchUnit = new ExecuteUnit[numBranchUnit];
+            for (int i = 0; i < numBranchUnit; i++)
+                branchUnit[i] = new ExecuteUnit(Optype.Branch);
             // fetch, decode/issue, dispatch, execute + broadcast, write, commit
 
 
@@ -111,13 +130,14 @@ namespace Processor
 
                  */
                 Instruction fetchOutput = null;
-                if (!reservationStation.CheckFull() && !rob.CheckFull())
-                {
-                    fetchOutput = fetchUnit.Run(ref pc, btb);
-                    issueUnit.Run(fetchOutput, rat, reservationStation, rob, pc, btb);
-
+                for(int i = 0; i < 2; i++)
+                {                
+                    if (!reservationStation.CheckFull() && !rob.CheckFull())
+                    {
+                        fetchOutput = fetchUnit.Run(ref pc, btb);
+                        issueUnit.Run(fetchOutput, rat, reservationStation, rob, pc, btb);
+                    }
                 }
-
                 //else
                 //    issueUnit.Run(reservationStation, rob);
 
@@ -148,12 +168,58 @@ namespace Processor
                 //        executeInput = null;
                 //}
 
-                if (executeUnit.busy == false)
-                    executeInput = dispatchUnit.Run(reservationStation);
-                if (executeInput != null)
-                    executeOutput = executeUnit.Run(executeInput);
-                if (executeOutput != null)
-                    executeInput = null;
+
+                // if (executeUnit.busy == false)
+                //     executeInput = dispatchUnit.Run(reservationStation);
+                // if (executeInput != null)
+                //     executeOutput = executeUnit.Run(executeInput);
+                // if (executeOutput != null)
+                //     executeInput = null;
+
+                foreach (ExecuteUnit unit in alus)
+                {
+                    ReservationStationEntry input = null;
+                    ReservationStationEntry output = null;
+                    if(!unit.busy)
+                    {
+                        input = dispatchUnit.Run(reservationStation, unit.optype);
+                        unit.input = input;
+                    }
+                    if(unit.input != null)
+                        output = unit.Run();
+                    if(output != null)
+                        executeFinishedQueue.Enqueue(output);
+                }
+
+                foreach (ExecuteUnit unit in loadStoreUnit)
+                {
+                    ReservationStationEntry input = null;
+                    ReservationStationEntry output = null;
+                    if (!unit.busy)
+                    {
+                        input = dispatchUnit.Run(reservationStation, unit.optype);
+                        unit.input = input;
+                    }
+                    if (unit.input != null)
+                        output = unit.Run();
+                    if (output != null)
+                        executeFinishedQueue.Enqueue(output);
+                }
+
+                foreach (ExecuteUnit unit in branchUnit)
+                {
+                    ReservationStationEntry input = null;
+                    ReservationStationEntry output = null;
+                    if (!unit.busy)
+                    {
+                        input = dispatchUnit.Run(reservationStation, unit.optype);
+                        unit.input = input;
+                    }
+                    if (unit.input != null)
+                        output = unit.Run();
+                    if (output != null)
+                        executeFinishedQueue.Enqueue(output);
+                }
 
 
 
@@ -164,13 +230,27 @@ namespace Processor
                  
                  */
 
-                if (broadcastInput != null)
+                // if (broadcastInput != null)
+                // {
+                //     reservationStation.Broadcast(broadcastInput);
+                //     broadcastInput.destination.value = broadcastInput.result;
+                //     broadcastInput.destination.done = true;
+                //     broadcastInput = null;
+                //     //rob.Broadcast(broadcastInput);
+                // }
+
+                int counter = 0;
+
+                while(counter < 2)
                 {
-                    reservationStation.Broadcast(broadcastInput);
-                    broadcastInput.destination.value = broadcastInput.result;
-                    broadcastInput.destination.done = true;
-                    broadcastInput = null;
-                    //rob.Broadcast(broadcastInput);
+                    if (executeFinishedQueue.Count > 0)
+                    {
+                        ReservationStationEntry entry = executeFinishedQueue.Dequeue();
+                        reservationStation.Broadcast(entry);
+                        entry.destination.value = entry.result;
+                        entry.destination.done = true;
+                    }
+                    counter++;
                 }
 
                 /*
@@ -183,6 +263,7 @@ namespace Processor
                 */
 
                 rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
+                rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
 
                 if(flushed){
                     issueInput = null;
@@ -192,6 +273,7 @@ namespace Processor
                     executeOutput = null;
                     executeUnit.busy = false;
                     flushed = false;
+                    executeFinishedQueue.Clear();
                 }
 
                 if(executeOutput != null)

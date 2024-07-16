@@ -52,11 +52,17 @@ namespace Processor
 
         public void Flush(Rat rat, ref bool flushed)
         {
-            while (commitPointer != issuePointer)
+            //while (commitPointer != issuePointer)
+            //{
+            //    table[commitPointer].Free();
+            //    commitPointer = Inc(commitPointer);
+            //}
+            foreach(var entry in table)
             {
-                table[commitPointer].Free();
-                commitPointer = Inc(commitPointer);
+                entry.Free();
             }
+            issuePointer = 0;
+            commitPointer = 0;
             rat.Flush();
             flushed = true;
         }

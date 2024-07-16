@@ -80,7 +80,9 @@ namespace Processor
         public int Predict()
         {
             double midPoint = GetMidpoint();
-            return confidence < midPoint ? -1 : branchedPc;
+            
+            predicted = confidence < midPoint ? -1 : branchedPc;
+            return (int) predicted;
         }
 
         public void Setup(int predicted)

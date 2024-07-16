@@ -27,6 +27,18 @@ namespace Processor
 
         public bool CheckFull() => table.All(x => !x.isFree);
 
+        public ReservationStationEntry Dispatch(Optype optype)
+        {
+            foreach (var entry in table)
+            {
+                if (entry.CheckReady() && entry.optype == optype)
+                {
+                    return entry;
+                }
+            }
+            return null;
+        }
+
         public ReservationStationEntry Dispatch()
         {
             foreach (var entry in table)
@@ -67,6 +79,7 @@ namespace Processor
         public Mem mem;
         public Instruction instruction;
         public int pc;
+        public Optype optype;
 
         public int result;
 
@@ -87,6 +100,7 @@ namespace Processor
             result = -1;
             instruction = null;
             pc = -1;
+            optype = Optype.Null;
         }
 
         public bool CheckReady()
@@ -107,6 +121,7 @@ namespace Processor
             result = -1;
             instruction = null;
             pc = -1;
+            optype = Optype.Null;
         }
 
         public object Clone()
@@ -123,6 +138,7 @@ namespace Processor
             clone.result = result;
             clone.instruction = instruction;
             clone.pc = pc;
+            clone.optype = optype;
             return clone;
         }
     }

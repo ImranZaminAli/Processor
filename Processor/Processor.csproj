@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alu.cs" />
     <Compile Include="Btb.cs" />
     <Compile Include="DecodeUnit.cs" />
     <Compile Include="Delegates.cs" />
@@ -51,7 +52,9 @@
     <Compile Include="FetchUnit.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="IssueUnit.cs" />
+    <Compile Include="Lsq.cs" />
     <Compile Include="MemUnit.cs" />
+    <Compile Include="Optype.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="PipelineRegister.cs" />
     <Compile Include="Processor.cs" />

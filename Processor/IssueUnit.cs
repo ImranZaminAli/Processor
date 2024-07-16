@@ -25,6 +25,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate ( int[] inputs) { return inputs[0] + inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry) entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "SUB":
@@ -33,6 +34,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] - inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 3;
                     break;
                 case "MUL":
@@ -41,6 +43,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] * inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 5;
                     break;
                 case "ADDI":
@@ -50,6 +53,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] + inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "SUBI":
@@ -59,6 +63,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] - inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 3;
                     break;
                 case "MULI":
@@ -68,6 +73,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] * inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 5;
                     break;
                 case "AND":
@@ -76,6 +82,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] & inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "OR":
@@ -84,6 +91,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] | inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "NOT":
@@ -93,6 +101,7 @@ namespace Processor
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1 ? 0 : 1; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "EQ":
@@ -101,6 +110,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] == inputs[1] ? 1 : 0; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 // case "NEQ":
@@ -117,6 +127,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] & inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "ORI":
@@ -126,6 +137,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] | inputs[1]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "NOTI":
@@ -135,6 +147,7 @@ namespace Processor
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1? 0 : 1; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "EQI":
@@ -144,6 +157,7 @@ namespace Processor
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] == inputs[1] ? 1 : 0; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 // case "NEQI":
@@ -160,6 +174,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] < inputs[1] ? 1 : 0; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
                 case "GT":
@@ -168,6 +183,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] > inputs[1] ? 1 : 0; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
                 case "LDI":
@@ -178,6 +194,7 @@ namespace Processor
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
                 case "MOV":
@@ -187,6 +204,7 @@ namespace Processor
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
                     rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "JMP":
@@ -200,6 +218,7 @@ namespace Processor
                     {
                         btb.Add(instruction.pc, instruction.Operand[0]);
                     }
+                    entry.optype = Optype.Branch;
                     entry.cycles = 4;
                     break;
                 case "BR":
@@ -212,8 +231,15 @@ namespace Processor
                     {
                         btb.Add(instruction.pc, instruction.Operand[1]);
                     }
+                    entry.optype = Optype.Branch;
                     entry.cycles = 5;
                     break;
+                // case "LD":
+                //     // load memory into register
+                //     entry.destination = rob.Issue(instruction.Operand[0]);
+                //     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+
+
                 case "HLT":
                     entry.destination = rob.Issue(-1);
                     entry.tags[0] = null;
@@ -221,6 +247,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return -1; };
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
                 case "NOP":
@@ -230,6 +257,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return -1; };
+                    entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
 
