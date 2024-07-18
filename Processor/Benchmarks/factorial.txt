@@ -1,0 +1,9 @@
+﻿LDI 0 15
+LDI 1 1
+LDI 2 1
+MUL 2 2 1
+ADDI 1 1 1
+GT 3 1 0
+NOT 3 3
+BR 3 4
+HLT

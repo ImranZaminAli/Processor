@@ -70,26 +70,27 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="branch.txt">
+    <Content Include="Benchmarks\factorial.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="jmp.txt">
+    <Content Include="Tests\branch.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="fibs2.txt" />
+    <Content Include="Tests\jmp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Benchmarks\fibs.txt" />
     <Content Include="sub.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="add.txt">
+    <Content Include="Tests\add.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="addnop.txt">
+    <Content Include="Tests\addnop.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="fibs.txt" />
+    <Content Include="Tests\fibs.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Benchmarks\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
