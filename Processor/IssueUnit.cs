@@ -218,7 +218,8 @@ namespace Processor
                     {
                         var btbEntry = btb.Add(instruction.pc, instruction.Operand[0]);
                         btbEntry.Setup((instruction.pc > instruction.Operand[0]) ? instruction.Operand[0] : instruction.pc);
-                        pc = btb.Predict(pc);
+                        int predicted = btb.Predict(instruction.pc);
+                        pc = predicted != -1 ? btbEntry.branchedPc - 1 : btbEntry.instructionPc + 1;
                         if (btbEntry.predicted != -1)
                             instructionQueue.Clear();
                     }
