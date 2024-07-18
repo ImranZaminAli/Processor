@@ -17,6 +17,7 @@ namespace Processor
         const int numAlu = 2;
         const int numLoadStoreUnit = 1;
         const int numBranchUnit = 1;
+        const int width = 2;
 
         private int pc;
         private int cycles;
@@ -39,8 +40,10 @@ namespace Processor
         private MemUnit memUnit;
         private WriteUnit writeUnit;
         private Btb btb;
+        private Lsq lsq;
 
         private Queue<ReservationStationEntry> executeFinishedQueue = new Queue<ReservationStationEntry>();
+        private Queue<Instruction> instructionQueue = new Queue<Instruction>();
         
         // old
 
@@ -86,7 +89,7 @@ namespace Processor
                 registers[i] = new RegisterUnit();
                 memory[i] = new MemoryUnit();
             }
-            rat = new Rat(registers);
+            rat = new Rat(registers, memory);
             labelMap = new Dictionary<int, int>();
             rob = new Rob(robLength);
             reservationStation = new ReservationStation(reservationStationLength);
@@ -96,13 +99,14 @@ namespace Processor
             executeUnit = new ExecuteUnit();
             memUnit = new MemUnit();
             writeUnit = new WriteUnit();
+            lsq = new Lsq(memory, registers);
             btb = new Btb(btbLength, twoBitBtb);
             alus = new ExecuteUnit[numAlu];
             for (int i = 0; i < numAlu; i++)
                 alus[i] = new ExecuteUnit(Optype.Alu);
             loadStoreUnit = new ExecuteUnit[numLoadStoreUnit];
             for (int i = 0; i < numLoadStoreUnit; i++)
-                loadStoreUnit[i] = new ExecuteUnit(Optype.LoadStore);
+                loadStoreUnit[i] = new LsExecuteUnit(Optype.LoadStore, lsq);
             branchUnit = new ExecuteUnit[numBranchUnit];
             for (int i = 0; i < numBranchUnit; i++)
                 branchUnit[i] = new ExecuteUnit(Optype.Branch);
@@ -111,181 +115,281 @@ namespace Processor
 
         }
 
+        public void Execute(ExecuteUnit[] units)
+        {
+            foreach(var unit in units)
+            {
+                ReservationStationEntry output = null;
+                if (unit.input != null)
+                    output = unit.Run();
+                if (output != null)
+                    executeFinishedQueue.Enqueue(output);
+            }
+        }
+
+        public void Dispatch(ExecuteUnit[] units, ref int dispatchCounter)
+        {
+            foreach(var unit in units)
+            {
+                if (dispatchCounter == width)
+                    return;
+
+                if (unit.busy)
+                    continue;
+
+                var input = dispatchUnit.Run(reservationStation, unit.optype);
+                unit.input = input;
+                if (input != null)
+                    dispatchCounter++;
+            }
+        }
+
         public void Run()
         {
-            Instruction issueInput = null;
-            ReservationStationEntry dispatchOutput = null;
-            //ReservationStationEntry dispatchInput = null;
-            ReservationStationEntry executeInput = null;
-            ReservationStationEntry executeOutput = null;
-            ReservationStationEntry broadcastInput = null;
             bool flushed = false;
+            ExecuteUnit[][] executeUnits = new ExecuteUnit[][] { alus, loadStoreUnit, branchUnit };
+            int cycles = 0;
             while (!finished)
             {
-                /* 
-                 
-                    fetch:
-                    see if there is a free reservation station and if there is a free rob entry
-                    if there is get the next instruction, else do nothing
+                // commit
+                for (int i = 0; i < width; i++)
+                    rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
 
-                 */
-                Instruction fetchOutput = null;
-                for(int i = 0; i < 2; i++)
-                {                
-                    if (!reservationStation.CheckFull() && !rob.CheckFull())
-                    {
-                        fetchOutput = fetchUnit.Run(ref pc, btb);
-                        issueUnit.Run(fetchOutput, rat, reservationStation, rob, pc, btb);
-                    }
-                }
-                //else
-                //    issueUnit.Run(reservationStation, rob);
-
-                /* 
-                 
-                    dispatch:
-                    check if there is a reservation station that has an instruction ready. 
-                    if so dispatch the instruction and free the reservation station.
-                    else do nothing
-
-                */
-
-
-
-                /*
-                 
-                    execute:
-                    execute the instruction over however many cycles it takes
-                 
-                 */
-
-                //if (executeUnit.busy == false)
-                //{
-                //    executeInput = dispatchUnit.Run(reservationStation); 
-                //    if(executeInput != null)
-                //        executeOutput = executeUnit.Run(executeInput);
-                //    if (executeOutput != null)
-                //        executeInput = null;
-                //}
-
-
-                // if (executeUnit.busy == false)
-                //     executeInput = dispatchUnit.Run(reservationStation);
-                // if (executeInput != null)
-                //     executeOutput = executeUnit.Run(executeInput);
-                // if (executeOutput != null)
-                //     executeInput = null;
-
-                foreach (ExecuteUnit unit in alus)
+                if (flushed)
                 {
-                    ReservationStationEntry input = null;
-                    ReservationStationEntry output = null;
-                    if(!unit.busy)
+                    instructionQueue.Clear();
+                    executeFinishedQueue.Clear();
+                    foreach(var units in executeUnits)
                     {
-                        input = dispatchUnit.Run(reservationStation, unit.optype);
-                        unit.input = input;
+                        foreach(var unit in units)
+                        {
+                            unit.input = null;
+                            unit.busy = false;
+                        }
                     }
-                    if(unit.input != null)
-                        output = unit.Run();
-                    if(output != null)
-                        executeFinishedQueue.Enqueue(output);
+                    flushed = false;
                 }
 
-                foreach (ExecuteUnit unit in loadStoreUnit)
-                {
-                    ReservationStationEntry input = null;
-                    ReservationStationEntry output = null;
-                    if (!unit.busy)
-                    {
-                        input = dispatchUnit.Run(reservationStation, unit.optype);
-                        unit.input = input;
-                    }
-                    if (unit.input != null)
-                        output = unit.Run();
-                    if (output != null)
-                        executeFinishedQueue.Enqueue(output);
-                }
-
-                foreach (ExecuteUnit unit in branchUnit)
-                {
-                    ReservationStationEntry input = null;
-                    ReservationStationEntry output = null;
-                    if (!unit.busy)
-                    {
-                        input = dispatchUnit.Run(reservationStation, unit.optype);
-                        unit.input = input;
-                    }
-                    if (unit.input != null)
-                        output = unit.Run();
-                    if (output != null)
-                        executeFinishedQueue.Enqueue(output);
-                }
-
-
-
-                /*
-                 
-                    write back:
-                    broadcast execution result to the reservation stations and rob
-                 
-                 */
-
-                // if (broadcastInput != null)
-                // {
-                //     reservationStation.Broadcast(broadcastInput);
-                //     broadcastInput.destination.value = broadcastInput.result;
-                //     broadcastInput.destination.done = true;
-                //     broadcastInput = null;
-                //     //rob.Broadcast(broadcastInput);
-                // }
-
-                int counter = 0;
-
-                while(counter < 2)
+                // broadcast
+                int broadcastCounter = 0;
+                while (broadcastCounter < width)
                 {
                     if (executeFinishedQueue.Count > 0)
                     {
                         ReservationStationEntry entry = executeFinishedQueue.Dequeue();
-                        reservationStation.Broadcast(entry);
+                        reservationStation.Broadcast(entry, lsq);
                         entry.destination.value = entry.result;
                         entry.destination.done = true;
                     }
-                    counter++;
+                    broadcastCounter++;
                 }
 
-                /*
-                 
-                    commit:
-                    if the commit pointer is at a done instruction update the register file
-                    if required also update the rat
-                    flush mispredictions
-                 
-                */
+                // execute
+                foreach (var units in executeUnits)
+                    Execute(units);
 
-                rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
-                rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
+                // dispatch
+                int dispatchCounter = 0;
+                foreach (var units in executeUnits)
+                    Dispatch(units, ref dispatchCounter);
 
-                if(flushed){
-                    issueInput = null;
-                    executeInput = null;
-                    broadcastInput = null;
-                    dispatchOutput = null;
-                    executeOutput = null;
-                    executeUnit.busy = false;
-                    flushed = false;
-                    executeFinishedQueue.Clear();
-                }
-
-                if(executeOutput != null)
+                // issue
+                for(int i = 0; i < width; i++)
                 {
-                    broadcastInput = executeOutput;
-                    executeOutput = null;
+                    if (!reservationStation.CheckFull() && !rob.CheckFull() && instructionQueue.Count > 0)
+                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, pc, btb, lsq);
                 }
-                
 
+                // fetch
+                for (int i = 0; i < width; i++)
+                {
+                    var instruction = fetchUnit.Run(ref pc, btb);
+                    if(instruction != null)
+                        instructionQueue.Enqueue(instruction);
+                }
+
+                cycles++;
             }
+            Console.WriteLine("cycles: {0}", cycles);
             Console.WriteLine("{0} {1} {2}, {3}", registers[0].value, registers[1].value, registers[2].value, registers[3].value);
+
         }
+
+        //public void Run()
+        //{
+        //    Instruction issueInput = null;
+        //    ReservationStationEntry dispatchOutput = null;
+        //    //ReservationStationEntry dispatchInput = null;
+        //    ReservationStationEntry executeInput = null;
+        //    ReservationStationEntry executeOutput = null;
+        //    ReservationStationEntry broadcastInput = null;
+        //    bool flushed = false;
+        //    while (!finished)
+        //    {
+        //        /* 
+
+        //            fetch:
+        //            see if there is a free reservation station and if there is a free rob entry
+        //            if there is get the next instruction, else do nothing
+
+        //         */
+        //        Instruction fetchOutput = null;
+        //        for(int i = 0; i < width; i++)
+        //        {                
+        //            if (!reservationStation.CheckFull() && !rob.CheckFull())
+        //            {
+        //                fetchOutput = fetchUnit.Run(ref pc, btb);
+        //                issueUnit.Run(fetchOutput, rat, reservationStation, rob, pc, btb);
+        //            }
+        //        }
+        //        //else
+        //        //    issueUnit.Run(reservationStation, rob);
+
+        //        /* 
+
+        //            dispatch:
+        //            check if there is a reservation station that has an instruction ready. 
+        //            if so dispatch the instruction and free the reservation station.
+        //            else do nothing
+
+        //        */
+
+
+
+        //        /*
+
+        //            execute:
+        //            execute the instruction over however many cycles it takes
+
+        //         */
+
+        //        //if (executeUnit.busy == false)
+        //        //{
+        //        //    executeInput = dispatchUnit.Run(reservationStation); 
+        //        //    if(executeInput != null)
+        //        //        executeOutput = executeUnit.Run(executeInput);
+        //        //    if (executeOutput != null)
+        //        //        executeInput = null;
+        //        //}
+
+
+        //        // if (executeUnit.busy == false)
+        //        //     executeInput = dispatchUnit.Run(reservationStation);
+        //        // if (executeInput != null)
+        //        //     executeOutput = executeUnit.Run(executeInput);
+        //        // if (executeOutput != null)
+        //        //     executeInput = null;
+
+
+        //        foreach (ExecuteUnit unit in alus)
+        //        {
+        //            ReservationStationEntry input = null;
+        //            ReservationStationEntry output = null;
+        //            if(!unit.busy)
+        //            {
+        //                input = dispatchUnit.Run(reservationStation, unit.optype);
+        //                unit.input = input;
+        //            }
+        //            if(unit.input != null)
+        //                output = unit.Run();
+        //            if(output != null)
+        //                executeFinishedQueue.Enqueue(output);
+        //        }
+
+        //        foreach (ExecuteUnit unit in loadStoreUnit)
+        //        {
+        //            ReservationStationEntry input = null;
+        //            ReservationStationEntry output = null;
+        //            if (!unit.busy)
+        //            {
+        //                input = dispatchUnit.Run(reservationStation, unit.optype);
+        //                unit.input = input;
+        //            }
+        //            if (unit.input != null)
+        //                output = unit.Run();
+        //            if (output != null)
+        //                executeFinishedQueue.Enqueue(output);
+        //        }
+
+        //        foreach (ExecuteUnit unit in branchUnit)
+        //        {
+        //            ReservationStationEntry input = null;
+        //            ReservationStationEntry output = null;
+        //            if (!unit.busy)
+        //            {
+        //                input = dispatchUnit.Run(reservationStation, unit.optype);
+        //                unit.input = input;
+        //            }
+        //            if (unit.input != null)
+        //                output = unit.Run();
+        //            if (output != null)
+        //                executeFinishedQueue.Enqueue(output);
+        //        }
+
+
+
+        //        /*
+
+        //            write back:
+        //            broadcast execution result to the reservation stations and rob
+
+        //         */
+
+        //        // if (broadcastInput != null)
+        //        // {
+        //        //     reservationStation.Broadcast(broadcastInput);
+        //        //     broadcastInput.destination.value = broadcastInput.result;
+        //        //     broadcastInput.destination.done = true;
+        //        //     broadcastInput = null;
+        //        //     //rob.Broadcast(broadcastInput);
+        //        // }
+
+        //        int counter = 0;
+
+        //        while(counter < width)
+        //        {
+        //            if (executeFinishedQueue.Count > 0)
+        //            {
+        //                ReservationStationEntry entry = executeFinishedQueue.Dequeue();
+        //                reservationStation.Broadcast(entry);
+        //                entry.destination.value = entry.result;
+        //                entry.destination.done = true;
+        //            }
+        //            counter++;
+        //        }
+
+        //        /*
+
+        //            commit:
+        //            if the commit pointer is at a done instruction update the register file
+        //            if required also update the rat
+        //            flush mispredictions
+
+        //        */
+        //        for (int i = 0; i < width; i++)
+        //            rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
+
+        //        if(flushed){
+        //            issueInput = null;
+        //            executeInput = null;
+        //            broadcastInput = null;
+        //            dispatchOutput = null;
+        //            executeOutput = null;
+        //            executeUnit.busy = false;
+        //            flushed = false;
+        //            executeFinishedQueue.Clear();
+        //        }
+
+        //        if(executeOutput != null)
+        //        {
+        //            broadcastInput = executeOutput;
+        //            executeOutput = null;
+        //        }
+
+
+        //    }
+        //    Console.WriteLine("{0} {1} {2}, {3}", registers[0].value, registers[1].value, registers[2].value, registers[3].value);
+        //}
 
         private void CheckFlushed() 
         {

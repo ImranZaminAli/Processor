@@ -21,6 +21,7 @@ namespace Processor
                 "LT", "GT",
                 "LDI", "MOV"
                 };
+        string[] loadStoreOperations = new string[] { "LD", "ST" };
         string[] branchOperations = new string[] { "JMP", "BR" };
         public Rob(int length)
         {
@@ -78,6 +79,13 @@ namespace Processor
 
             if (writeOperations.Contains(entry.opcode))
                 rat.Commit(entry);
+            else if (loadStoreOperations.Contains(entry.opcode))
+            {
+                if (entry.opcode == "LD")
+                    rat.Commit(entry);
+                else
+                    rat.CommitMem(entry);
+            }
             else if (branchOperations.Contains(entry.opcode))
             {
                 var btbEntry = btb.Find(entry.pc);

@@ -8,7 +8,7 @@ namespace Processor
 {
     class IssueUnit
     {
-        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, int pc, Btb btb)
+        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, int pc, Btb btb, Lsq lsq)
         {
             if (instruction == null)
                 return;
@@ -234,12 +234,28 @@ namespace Processor
                     entry.optype = Optype.Branch;
                     entry.cycles = 5;
                     break;
-                // case "LD":
-                //     // load memory into register
-                //     entry.destination = rob.Issue(instruction.Operand[0]);
-                //     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
-
-
+                case "LD":
+                    // load memory into register
+                    entry.destination = rob.Issue(instruction.Operand[0]);
+                    lsq.Add(true, instruction.Operand[1], instruction.Operand[0]);
+                    entry.tags[0] = null;
+                    entry.tags[1] = null;
+                    entry.values[0] = -1;
+                    entry.values[1] = -1;
+                    entry.execution = delegate (int[] inputs) { return inputs[0]; };
+                    entry.optype = Optype.LoadStore;
+                    entry.cycles = 2;
+                    break;
+                case "ST":
+                    entry.destination = rob.Issue(-1);
+                    lsq.Add(false, instruction.Operand[0], instruction.Operand[1]);
+                    rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+                    entry.tags[1] = null;
+                    entry.values[1] = -1;
+                    entry.execution = delegate (int[] inputs) { return inputs[0]; };
+                    entry.optype = Optype.LoadStore;
+                    entry.cycles = 2;
+                    break;
                 case "HLT":
                     entry.destination = rob.Issue(-1);
                     entry.tags[0] = null;

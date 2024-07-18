@@ -11,10 +11,12 @@ namespace Processor
         public RobEntry[] rat;
         public int ratLength;
         public Unit[] registers;
+        public Unit[] memory;
 
-        public Rat(Unit[] registers)
+        public Rat(Unit[] registers, Unit[] memory)
         {
             this.registers = registers;
+            this.memory = memory;
             ratLength = registers.Length;
             rat = new RobEntry[ratLength];
             for(int i = 0; i < ratLength; i++)
@@ -43,6 +45,14 @@ namespace Processor
             //        registers[i].value = (int) entry.value;
             //    }
             //}
+        }
+
+        public void CommitMem(RobEntry entry)
+        {
+            int index = entry.destination;
+            memory[index].value = entry.value;
+            if (rat[index] == entry)
+                rat[index] = null;
         }
 
         //public void Flush() => rat.ToList().ForEach(x => x.Free());

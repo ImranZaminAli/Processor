@@ -31,15 +31,13 @@ namespace Processor
             {
                 // entry.isFree = true;
                 entry.result = entry.execution(entry.values);
-                if(entry.result == -1)
-                    Console.WriteLine("here");
                 busy = false;
                 return (ReservationStationEntry) entry.Clone();
             }
             return null;
         }
 
-        public ReservationStationEntry Run() 
+        public virtual ReservationStationEntry Run() 
         {
 
             busy = true;
@@ -48,8 +46,6 @@ namespace Processor
             {
                 // entry.isFree = true;
                 input.result = input.execution(input.values);
-                if(input.result == -1)
-                    Console.WriteLine("here");
                 busy = false;
                 return (ReservationStationEntry) input.Clone();
             }
@@ -69,6 +65,31 @@ namespace Processor
             else
                 pipelineRegister.Busy = true;
             return pipelineRegister;
+        }
+    }
+
+    class LsExecuteUnit : ExecuteUnit
+    {
+
+        public Lsq lsq;
+        public LsExecuteUnit(Optype optype, Lsq lsq)
+        {
+            this.optype = optype;
+            this.lsq = lsq;
+        }
+
+        public override ReservationStationEntry Run()
+        {
+            busy = true;
+            input.cycles--;
+            if (input.cycles != 0)
+                return null;
+
+            if (lsq.queue[0].value != -1)
+                input.result = input.execution(lsq.queue[0].value);
+            busy = false;
+            lsq.queue.RemoveAt(0);
+            return (ReservationStationEntry) input.Clone();
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Processor
             return null;
         }
 
-        public void Broadcast(ReservationStationEntry entry)
+        public void Broadcast(ReservationStationEntry entry, Lsq lsq)
         {
             foreach (var station in table)
             {
@@ -63,6 +63,24 @@ namespace Processor
                         station.values[i] = entry.result;
                     }
                 }
+            }
+
+            if (entry.optype != Optype.LoadStore)
+                return;
+
+            foreach(var lsEntry in lsq.queue)
+            {
+                if (entry.destination == lsEntry.memAddress)
+                {
+                    lsEntry.value = entry.result;
+                    lsEntry.done = true;
+                }
+                if (entry.destination == lsEntry.regAddress)
+                {
+                    lsEntry.value = entry.result;
+                    lsEntry.done = true;
+                }
+
             }
         }
 
@@ -76,7 +94,7 @@ namespace Processor
         public int[] values;
         public bool isFree;
         public Execution execution;
-        public Mem mem;
+        //public Mem mem;
         public Instruction instruction;
         public int pc;
         public Optype optype;
@@ -95,7 +113,7 @@ namespace Processor
                 values[i] = -1;
             }
             execution = delegate (int[] operands) { return -1; };
-            mem = delegate (int[] operands) { return -1; };
+            //mem = delegate (int[] operands) { return -1; };
             cycles = 0;
             result = -1;
             instruction = null;
@@ -116,7 +134,7 @@ namespace Processor
             values = new int[2];
             isFree = true;
             execution = delegate (int[] operands) { return -1; };
-            mem = delegate (int[] operands) { return -1; };
+            //mem = delegate (int[] operands) { return -1; };
             cycles = 0;
             result = -1;
             instruction = null;
@@ -133,7 +151,7 @@ namespace Processor
             clone.values = values;
             clone.isFree = isFree;
             clone.execution = execution;
-            clone.mem = mem;
+            //clone.mem = mem;
             clone.cycles = cycles;
             clone.result = result;
             clone.instruction = instruction;
