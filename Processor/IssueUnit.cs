@@ -8,7 +8,7 @@ namespace Processor
 {
     class IssueUnit
     {
-        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, int pc, Btb btb, Lsq lsq)
+        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, ref int pc, Btb btb, Lsq lsq, Queue<Instruction> instructionQueue)
         {
             if (instruction == null)
                 return;
@@ -216,7 +216,11 @@ namespace Processor
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
                     if (!btb.Contains(instruction.pc))
                     {
-                        btb.Add(instruction.pc, instruction.Operand[0]);
+                        var btbEntry = btb.Add(instruction.pc, instruction.Operand[0]);
+                        btbEntry.Setup((instruction.pc > instruction.Operand[0]) ? instruction.Operand[0] : instruction.pc);
+                        pc = btb.Predict(pc);
+                        if (btbEntry.predicted != -1)
+                            instructionQueue.Clear();
                     }
                     entry.optype = Optype.Branch;
                     entry.cycles = 4;
@@ -229,7 +233,12 @@ namespace Processor
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1 ? inputs[1] : -1;};
                     if (!btb.Contains(instruction.pc))
                     {
-                        btb.Add(instruction.pc, instruction.Operand[1]);
+                        var btbEntry = btb.Add(instruction.pc, instruction.Operand[1]);
+                        btbEntry.Setup((instruction.pc > instruction.Operand[0]) ? instruction.Operand[0] : instruction.pc);
+                        int predicted = btb.Predict(instruction.pc);
+                        pc = predicted != -1? btbEntry.branchedPc - 1 : btbEntry.instructionPc + 1;
+                        if (btbEntry.predicted != -1)
+                            instructionQueue.Clear();
                     }
                     entry.optype = Optype.Branch;
                     entry.cycles = 5;

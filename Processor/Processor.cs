@@ -197,7 +197,7 @@ namespace Processor
                 for(int i = 0; i < width; i++)
                 {
                     if (!reservationStation.CheckFull() && !rob.CheckFull() && instructionQueue.Count > 0)
-                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, pc, btb, lsq);
+                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, ref pc, btb, lsq, instructionQueue);
                 }
 
                 // fetch

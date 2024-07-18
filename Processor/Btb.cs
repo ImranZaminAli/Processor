@@ -8,8 +8,8 @@ namespace Processor
 {
     class Btb
     {
-        List<BtbEntry> buffer;
-        int length;
+        public List<BtbEntry> buffer;
+        public int length;
         bool twoBit;
         int maxConfidence;
         public Btb(int length, bool twoBit)
@@ -24,14 +24,17 @@ namespace Processor
 
         public BtbEntry Find(int pc) => buffer.Find(x => x.instructionPc == pc);
 
-        public void Add(int pc, int branchedPc)
+        public BtbEntry Add(int pc, int branchedPc)
         {
             if(!Contains(pc))
             {
                 //if (buffer.Count == length)
                 //    buffer.RemoveAt(0);
-                buffer.Add(new BtbEntry(pc, branchedPc, twoBit ? 4 : 2));
+                var newEntry = new BtbEntry(pc, branchedPc, twoBit ? 4 : 2);
+                buffer.Add(newEntry);
+                return newEntry;
             }
+            return null;
         }
 
         public int Predict(int pc)
@@ -64,12 +67,14 @@ namespace Processor
         public int? predicted;
         public int branchedPc;
         public int instructionPc;
+        public bool setup;
 
         public BtbEntry(int pc, int branchedPc, int maxConfidence)
         {
             this.instructionPc = pc;
             this.branchedPc = branchedPc;
             this.maxConfidence = maxConfidence;
+            setup = false;
         }
 
         private double GetMidpoint()

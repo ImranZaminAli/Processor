@@ -106,6 +106,12 @@ namespace Processor
                 }
                 else
                 {
+                    if(!btbEntry.setup)
+                    {
+                        btbEntry.setup = true;
+                        if (btb.buffer.Count > btb.length)
+                            btb.buffer.RemoveAt(0);
+                    }
                     int predicted = (int) btbEntry.predicted;
                     if(predicted == entry.value)
                     {
