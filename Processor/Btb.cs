@@ -86,7 +86,7 @@ namespace Processor
         {
             double midPoint = GetMidpoint();
             
-            predicted = confidence < midPoint ? -1 : branchedPc;
+            predicted = (double) confidence < midPoint ? -1 : branchedPc;
             return (int) predicted;
         }
 

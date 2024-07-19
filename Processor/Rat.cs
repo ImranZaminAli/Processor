@@ -12,6 +12,7 @@ namespace Processor
         public int ratLength;
         public Unit[] registers;
         public Unit[] memory;
+        public int[] instructionCounts;
 
         public Rat(Unit[] registers, Unit[] memory)
         {
@@ -19,15 +20,21 @@ namespace Processor
             this.memory = memory;
             ratLength = registers.Length;
             rat = new RobEntry[ratLength];
+            instructionCounts = new int[ratLength];
             for(int i = 0; i < ratLength; i++)
             {
                 rat[i] = null;
+                instructionCounts[i] = -1;
             }
         }
 
-        public void Update(int index, RobEntry robEntry)
+        public void Update(int index, int instructionCount, RobEntry robEntry)
         {
-            rat[index] = robEntry;
+            if (instructionCount > instructionCounts[index])
+            {
+                rat[index] = robEntry;
+                instructionCounts[index] = instructionCount;
+            }
         }
 
         public void Commit(RobEntry entry)
@@ -36,7 +43,10 @@ namespace Processor
             int index = entry.destination;
             registers[index].value = entry.value;
             if (rat[index] == entry)
+            {
                 rat[index] = null;
+                instructionCounts[index] = -1;
+            }
             //for(int i = 0; i < ratLength; i++)
             //{
             //    if(rat[i] == entry)

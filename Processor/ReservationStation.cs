@@ -51,7 +51,7 @@ namespace Processor
             return null;
         }
 
-        public void Broadcast(ReservationStationEntry entry, Lsq lsq)
+        public void Broadcast(ReservationStationEntry entry, Lsq lsq, Rat rat)
         {
             foreach (var station in table)
             {
@@ -59,11 +59,29 @@ namespace Processor
                 {
                     if (station.tags[i] == entry.destination)
                     {
-                        station.tags[i] = null;
-                        station.values[i] = entry.result;
+                        if (!(station.opcode == "MOVINDB" && station.destination.destination == -1))
+                        {
+                            station.tags[i] = null;
+                            station.values[i] = entry.result;
+                            if (station.opcode == "MOVIND" && station.tags[1] != null)
+                            {
+                                station.tags[1] = null;
+                                rat.CheckTags(station.values[0], ref station.tags[0], ref station.values[0]);
+                            }
+                        }
+                        else
+                        {
+                            station.destination.destination = entry.result;
+                            station.tags[1] = null;
+                            station.values[1] = -1;
+                            rat.Update(entry.result, entry.instructionCount, station.destination);
+                        }
                     }
+                    
                 }
             }
+
+            
 
             if (entry.optype != Optype.LoadStore)
                 return;
@@ -100,7 +118,7 @@ namespace Processor
         public Optype optype;
 
         public int result;
-
+        public int instructionCount;
         public int cycles;
         public ReservationStationEntry()
         {
@@ -119,10 +137,13 @@ namespace Processor
             instruction = null;
             pc = -1;
             optype = Optype.Null;
+            instructionCount = -1;
         }
 
         public bool CheckReady()
         {
+            if (opcode == "MOVINDB" && destination.destination == -1)
+                return false;
             return (!isFree) && tags.All(x => x == null);
         }
 
@@ -140,6 +161,7 @@ namespace Processor
             instruction = null;
             pc = -1;
             optype = Optype.Null;
+            instructionCount = -1;
         }
 
         public object Clone()
@@ -157,6 +179,7 @@ namespace Processor
             clone.instruction = instruction;
             clone.pc = pc;
             clone.optype = optype;
+            clone.instructionCount = instructionCount;
             return clone;
         }
     }

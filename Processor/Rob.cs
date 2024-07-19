@@ -19,7 +19,7 @@ namespace Processor
                 "ANDI", "ORI", "NOTI",
                 "EQ", "EQI",
                 "LT", "GT",
-                "LDI", "MOV", "MOD", "DIV"
+                "LDI", "MOV", "MOD", "DIV", "MOVIND", "MOVINDB"
                 };
         string[] loadStoreOperations = new string[] { "LD", "ST" };
         string[] branchOperations = new string[] { "JMP", "BR" };
@@ -68,7 +68,7 @@ namespace Processor
             flushed = true;
         }
 
-        public void Commit(ref int pc, Rat rat, ref bool flushed, ref bool finished, Btb btb)
+        public void Commit(ref int pc, Rat rat, ref bool flushed, ref bool finished, Btb btb, ref int mispredictions)
         {
             
             // not every instruction writes
@@ -90,7 +90,7 @@ namespace Processor
             {
                 var btbEntry = btb.Find(entry.pc);
                 bool setup = btbEntry.confidence != null;
-                if (!setup && entry.value != -1)
+                if (false)
                 {
                     btbEntry.Setup(entry.value);
                     btb.Commit();
@@ -115,11 +115,18 @@ namespace Processor
                     int predicted = (int) btbEntry.predicted;
                     if(predicted == entry.value)
                     {
-                        btbEntry.IncConfidence();
+                        if (entry.value == -1)
+                            btbEntry.DecConfidence();
+                        else
+                            btbEntry.IncConfidence();
                     }
                     else
                     {
-                        btbEntry.DecConfidence();
+                        if (entry.value == -1)
+                            btbEntry.DecConfidence();
+                        else
+                            btbEntry.IncConfidence();
+                        mispredictions++;
                         Flush(rat, ref flushed);
                         pc = predicted == -1 ? btbEntry.branchedPc - 1 : btbEntry.instructionPc + 1;
                         return;

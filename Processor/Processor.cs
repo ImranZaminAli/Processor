@@ -12,8 +12,8 @@ namespace Processor
     {
         const int robLength = 6;
         const int reservationStationLength = 4;
-        const int btbLength = 2;
-        const bool twoBitBtb = true;
+        const int btbLength = 10;
+        const bool twoBitBtb = false;
         const int numAlu = 2;
         const int numLoadStoreUnit = 1;
         const int numBranchUnit = 1;
@@ -147,13 +147,15 @@ namespace Processor
         public void Run()
         {
             bool flushed = false;
+            int instructionCount = 0;
+            int mispredictions = 0;
             ExecuteUnit[][] executeUnits = new ExecuteUnit[][] { alus, loadStoreUnit, branchUnit };
             int cycles = 0;
             while (!finished)
             {
                 // commit
                 for (int i = 0; i < width; i++)
-                    rob.Commit(ref pc, rat, ref flushed, ref finished, btb);
+                    rob.Commit(ref pc, rat, ref flushed, ref finished, btb, ref mispredictions);
 
                 if (flushed)
                 {
@@ -178,7 +180,7 @@ namespace Processor
                     if (executeFinishedQueue.Count > 0)
                     {
                         ReservationStationEntry entry = executeFinishedQueue.Dequeue();
-                        reservationStation.Broadcast(entry, lsq);
+                        reservationStation.Broadcast(entry, lsq, rat);
                         entry.destination.value = entry.result;
                         entry.destination.done = true;
                     }
@@ -195,10 +197,13 @@ namespace Processor
                     Dispatch(units, ref dispatchCounter);
 
                 // issue
-                for(int i = 0; i < width; i++)
+                for (int i = 0; i < width; i++)
                 {
                     if (!reservationStation.CheckFull() && !rob.CheckFull() && instructionQueue.Count > 0)
-                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, ref pc, btb, lsq, instructionQueue);
+                    {
+                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, ref pc, btb, lsq, instructionQueue, instructionCount);
+                        instructionCount++;
+                    }
                 }
 
                 // fetch
@@ -212,6 +217,7 @@ namespace Processor
                 cycles++;
             }
             Console.WriteLine("cycles: {0}", cycles);
+            Console.WriteLine("mispredictions: {0}", mispredictions);
             Console.WriteLine("{0} {1} {2}, {3} {4}", registers[0].value, registers[1].value, registers[2].value, registers[3].value, registers[4].value);
 
         }

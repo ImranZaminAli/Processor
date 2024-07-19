@@ -8,7 +8,7 @@ namespace Processor
 {
     class IssueUnit
     {
-        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, ref int pc, Btb btb, Lsq lsq, Queue<Instruction> instructionQueue)
+        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, ref int pc, Btb btb, Lsq lsq, Queue<Instruction> instructionQueue, int instructionCount)
         {
             if (instruction == null)
                 return;
@@ -17,6 +17,7 @@ namespace Processor
             entry.opcode = instruction.Opcode;
             entry.instruction = instruction;
             entry.pc = instruction.pc;
+            entry.instructionCount = instructionCount;
             switch(entry.opcode)
             {
                 case "ADD":
@@ -24,7 +25,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate ( int[] inputs) { return inputs[0] + inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry) entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry) entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -33,7 +34,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] - inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 3;
                     break;
@@ -42,7 +43,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] * inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 5;
                     break;
@@ -51,7 +52,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] / inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 7;
                     break;
@@ -60,7 +61,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] % inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 10;
                     break;
@@ -70,7 +71,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] + inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -80,7 +81,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] - inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 3;
                     break;
@@ -90,7 +91,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] * inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 5;
                     break;
@@ -99,7 +100,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] & inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -108,7 +109,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] | inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -118,7 +119,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1 ? 0 : 1; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -127,7 +128,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] == inputs[1] ? 1 : 0; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -144,7 +145,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] & inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -154,7 +155,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] | inputs[1]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -164,7 +165,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0] == 1? 0 : 1; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -174,7 +175,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = instruction.Operand[2];
                     entry.execution = delegate (int[] inputs) { return inputs[0] == inputs[1] ? 1 : 0; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
                     break;
@@ -191,7 +192,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] < inputs[1] ? 1 : 0; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
@@ -200,7 +201,7 @@ namespace Processor
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
                     rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
                     entry.execution = delegate (int[] inputs) { return inputs[0] > inputs[1] ? 1 : 0; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
@@ -211,7 +212,7 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 2;
                     break;
@@ -221,9 +222,41 @@ namespace Processor
                     entry.tags[1] = null;
                     entry.values[1] = -1;
                     entry.execution = delegate (int[] inputs) { return inputs[0]; };
-                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
                     entry.optype = Optype.Alu;
                     entry.cycles = 1;
+                    break;
+                case "MOVIND":
+                    entry.destination = rob.Issue(instruction.Operand[0]);
+                    entry.tags[1] = new RobEntry();
+                    entry.values[1] = -1;
+                    rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+                    if (entry.values[0] != -1)
+                    {
+                        rat.CheckTags(entry.values[0], ref entry.tags[0], ref entry.values[0]);
+                        entry.tags[1] = null;
+                    }
+                    rat.Update(instruction.Operand[0], instructionCount, (RobEntry)entry.destination);
+                    entry.execution = delegate (int[] inputs) { return inputs[0]; };
+                    entry.optype = Optype.Alu;
+                    entry.cycles = 3;
+                    break;
+                case "MOVINDB":
+                    entry.destination = rob.Issue(-1);
+
+                    // case 1:
+                    rat.CheckTags(instruction.Operand[0], ref entry.tags[1], ref entry.values[1]);
+                    if(entry.values[1] != -1)
+                    {
+                        entry.destination.destination = entry.values[1];
+                        rat.Update(entry.values[1], instructionCount, (RobEntry)entry.destination);
+                        entry.tags[1] = null;
+                        entry.values[1] = -1;
+                    }
+                    rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+                    entry.execution = delegate (int[] inputs) { return inputs[0]; };
+                    entry.optype = Optype.Alu;
+                    entry.cycles = 4;
                     break;
                 case "JMP":
                     entry.destination = rob.Issue(-1);
