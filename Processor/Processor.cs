@@ -13,7 +13,7 @@ namespace Processor
         const int robLength = 6;
         const int reservationStationLength = 4;
         const int btbLength = 10;
-        const bool twoBitBtb = false;
+        const bool twoBitBtb = true;
         const int numAlu = 2;
         const int numLoadStoreUnit = 1;
         const int numBranchUnit = 1;
@@ -217,8 +217,14 @@ namespace Processor
                 cycles++;
             }
             Console.WriteLine("cycles: {0}", cycles);
+            Console.WriteLine("instructions {0}", instructionCount);
+            Console.WriteLine("cycles per instruction: {0}", Math.Round(((double) cycles / (double) instructionCount), 2));
             Console.WriteLine("mispredictions: {0}", mispredictions);
-            Console.WriteLine("{0} {1} {2}, {3} {4}", registers[0].value, registers[1].value, registers[2].value, registers[3].value, registers[4].value);
+            //Console.WriteLine("{0} {1} {2}, {3} {4}", registers[0].value, registers[1].value, registers[2].value, registers[3].value, registers[4].value);
+            for(int i = 0; i < registers.Length; i++)
+            {
+                Console.WriteLine("register {0}: {1}", i, registers[i].value);
+            }
 
         }
 
