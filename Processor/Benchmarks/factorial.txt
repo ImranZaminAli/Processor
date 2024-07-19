@@ -1,4 +1,4 @@
-﻿LDI 0 15
+﻿LDI 0 10
 LDI 1 1
 LDI 2 1
 MUL 2 2 1

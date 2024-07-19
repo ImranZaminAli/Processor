@@ -19,7 +19,7 @@ namespace Processor
                 "ANDI", "ORI", "NOTI",
                 "EQ", "EQI",
                 "LT", "GT",
-                "LDI", "MOV"
+                "LDI", "MOV", "MOD", "DIV"
                 };
         string[] loadStoreOperations = new string[] { "LD", "ST" };
         string[] branchOperations = new string[] { "JMP", "BR" };

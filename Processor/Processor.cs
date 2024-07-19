@@ -167,6 +167,7 @@ namespace Processor
                             unit.busy = false;
                         }
                     }
+                    reservationStation = new ReservationStation(reservationStationLength);
                     flushed = false;
                 }
 
@@ -211,7 +212,7 @@ namespace Processor
                 cycles++;
             }
             Console.WriteLine("cycles: {0}", cycles);
-            Console.WriteLine("{0} {1} {2}, {3}", registers[0].value, registers[1].value, registers[2].value, registers[3].value);
+            Console.WriteLine("{0} {1} {2}, {3} {4}", registers[0].value, registers[1].value, registers[2].value, registers[3].value, registers[4].value);
 
         }
 

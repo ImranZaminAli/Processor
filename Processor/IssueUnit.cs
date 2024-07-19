@@ -46,6 +46,24 @@ namespace Processor
                     entry.optype = Optype.Alu;
                     entry.cycles = 5;
                     break;
+                case "DIV":
+                    entry.destination = rob.Issue(instruction.Operand[0]);
+                    rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+                    rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
+                    entry.execution = delegate (int[] inputs) { return inputs[0] / inputs[1]; };
+                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
+                    entry.cycles = 7;
+                    break;
+                case "MOD":
+                    entry.destination = rob.Issue(instruction.Operand[0]);
+                    rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
+                    rat.CheckTags(instruction.Operand[2], ref entry.tags[1], ref entry.values[1]);
+                    entry.execution = delegate (int[] inputs) { return inputs[0] % inputs[1]; };
+                    rat.Update(instruction.Operand[0], (RobEntry)entry.destination);
+                    entry.optype = Optype.Alu;
+                    entry.cycles = 10;
+                    break;
                 case "ADDI":
                     entry.destination = rob.Issue(instruction.Operand[0]);
                     rat.CheckTags(instruction.Operand[1], ref entry.tags[0], ref entry.values[0]);
