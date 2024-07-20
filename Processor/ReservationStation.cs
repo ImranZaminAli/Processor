@@ -29,14 +29,21 @@ namespace Processor
 
         public ReservationStationEntry Dispatch(Optype optype)
         {
+            List<ReservationStationEntry> ready = new List<ReservationStationEntry>();
             foreach (var entry in table)
             {
                 if (entry.CheckReady() && entry.optype == optype)
                 {
-                    return entry;
+                    ready.Add(entry);
                 }
             }
-            return null;
+            if(ready.Count == 0)
+                return null;
+
+            //Random random = new Random();
+            //int index = random.Next(0, ready.Count());
+            //return ready[index];
+            return ready.OrderBy(x => x.instructionCount).ToArray()[0];
         }
 
         public ReservationStationEntry Dispatch()

@@ -11,7 +11,7 @@ namespace Processor
     class Processor
     {
         const int robLength = 6;
-        const int reservationStationLength = 4;
+        const int reservationStationLength = 6;
         const int btbLength = 10;
         const bool twoBitBtb = true;
         const int numAlu = 2;
