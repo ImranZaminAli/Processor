@@ -11,10 +11,12 @@ namespace Processor
     {
         public ReservationStationEntry[] table;
         public int tableLength;
+        bool oldestFirst;
 
-        public ReservationStation(int length)
+        public ReservationStation(int length, bool oldestFirst)
         {
             tableLength = length;
+            this.oldestFirst = oldestFirst;
             table = new ReservationStationEntry[length];
 
             for(int i = 0; i < length; i++)
@@ -46,16 +48,24 @@ namespace Processor
             return ready.OrderBy(x => x.instructionCount).ToArray()[0];
         }
 
-        public ReservationStationEntry Dispatch()
+        public List<ReservationStationEntry> Dispatch()
         {
+            List<ReservationStationEntry> ready = new List<ReservationStationEntry>();
             foreach (var entry in table)
             {
                 if (entry.CheckReady())
                 {
-                    return entry;
+                    ready.Add(entry);
                 }
             }
-            return null;
+            if (ready.Count == 0)
+                return null;
+
+
+            if (oldestFirst)
+                return ready.OrderBy(x => x.instructionCount).ToList();
+            else
+                return ready;
         }
 
         public void Broadcast(ReservationStationEntry entry, Lsq lsq, Rat rat)
@@ -151,7 +161,7 @@ namespace Processor
         {
             if (opcode == "MOVINDB" && destination.destination == -1)
                 return false;
-            return (!isFree) && tags.All(x => x == null);
+            return (!isFree) && tags.All(x => x == null) && pc != -1;
         }
 
         public void Free()

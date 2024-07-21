@@ -18,6 +18,7 @@ namespace Processor
         const int numLoadStoreUnit = 1;
         const int numBranchUnit = 1;
         const int width = 2;
+        const bool oldestFirst = true;
 
         private int pc;
         private int cycles;
@@ -92,7 +93,7 @@ namespace Processor
             rat = new Rat(registers, memory);
             labelMap = new Dictionary<int, int>();
             rob = new Rob(robLength);
-            reservationStation = new ReservationStation(reservationStationLength);
+            reservationStation = new ReservationStation(reservationStationLength, oldestFirst);
             fetchUnit = new FetchUnit(instructions);
             issueUnit = new IssueUnit();
             dispatchUnit = new DispatchUnit();
@@ -123,7 +124,10 @@ namespace Processor
                 if (unit.input != null)
                     output = unit.Run();
                 if (output != null)
+                {
                     executeFinishedQueue.Enqueue(output);
+                    unit.input = null;
+                }
             }
         }
 
@@ -169,7 +173,7 @@ namespace Processor
                             unit.busy = false;
                         }
                     }
-                    reservationStation = new ReservationStation(reservationStationLength);
+                    reservationStation = new ReservationStation(reservationStationLength, oldestFirst);
                     flushed = false;
                 }
 
@@ -192,9 +196,10 @@ namespace Processor
                     Execute(units);
 
                 // dispatch
-                int dispatchCounter = 0;
-                foreach (var units in executeUnits)
-                    Dispatch(units, ref dispatchCounter);
+                //int dispatchCounter = 0;
+                //foreach (var units in executeUnits)
+                //    Dispatch(units, ref dispatchCounter);
+                dispatchUnit.Run(reservationStation, alus, loadStoreUnit, branchUnit, width);
 
                 // issue
                 for (int i = 0; i < width; i++)
