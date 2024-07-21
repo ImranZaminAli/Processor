@@ -8,11 +8,47 @@ namespace Processor
 {
     class IssueUnit
     {
-        public void Run(Instruction instruction, Rat rat, ReservationStation reservationStation, Rob rob, ref int pc, Btb btb, Lsq lsq, Queue<Instruction> instructionQueue, int instructionCount)
+        public void Run(Rat rat, ReservationStation[] reservationStation, Rob rob, ref int pc, Btb btb, Lsq lsq, List<Instruction> instructionQueue, ref int instructionCount)
         {
+            if (instructionQueue.Count == 0)
+                return;
+            Instruction instruction = instructionQueue[0];
             if (instruction == null)
                 return;
-            ReservationStationEntry entry = reservationStation.GetFreeStation();
+            ReservationStationEntry entry;
+            string[] aluOpcodes = new string[]{
+                "ADD", "SUB", "MUL",
+                "ADDI", "SUBI", "MULI",
+                "AND", "OR", "NOT",
+                "ANDI", "ORI", "NOTI",
+                "EQ", "EQI",
+                "LT", "GT",
+                "LDI", "MOV", "MOD", "DIV", "MOVIND", "MOVINDB",
+                "HLT", "NOP"
+                };
+            string[] lsOpcodes = new string[] { "LD", "ST"};
+
+            ReservationStation rs;
+
+            if(aluOpcodes.Contains(instruction.Opcode))
+            {
+                rs = reservationStation[0];
+            }
+            else if(lsOpcodes.Contains(instruction.Opcode))
+            {
+                rs = reservationStation[1];
+            }
+            else
+            {
+                rs = reservationStation[2];
+            }
+
+            if (rs.CheckFull())
+                return;
+
+            entry = rs.GetFreeStation();
+            instructionQueue.Remove(instruction);
+
             entry.isFree = false;
             entry.opcode = instruction.Opcode;
             entry.instruction = instruction;
@@ -342,6 +378,7 @@ namespace Processor
 
             entry.destination.opcode = entry.opcode;
             entry.destination.pc = instruction.pc;
+            instructionCount++;
             //this.Run(reservationStation, rob);
         }
 

@@ -44,8 +44,12 @@ namespace Processor
         private Lsq lsq;
 
         private Queue<ReservationStationEntry> executeFinishedQueue = new Queue<ReservationStationEntry>();
-        private Queue<Instruction> instructionQueue = new Queue<Instruction>();
+        private List<Instruction> instructionQueue = new List<Instruction>();
+        private ReservationStation aluRs = new ReservationStation(2, oldestFirst);
+        private ReservationStation lsRs = new ReservationStation(2, oldestFirst);
+        private ReservationStation buRs = new ReservationStation(2, oldestFirst);
         
+
         // old
 
         //private FetchUnit fetchUnit;
@@ -93,7 +97,7 @@ namespace Processor
             rat = new Rat(registers, memory);
             labelMap = new Dictionary<int, int>();
             rob = new Rob(robLength);
-            reservationStation = new ReservationStation(reservationStationLength, oldestFirst);
+            //reservationStation = new ReservationStation(reservationStationLength, oldestFirst);
             fetchUnit = new FetchUnit(instructions);
             issueUnit = new IssueUnit();
             dispatchUnit = new DispatchUnit();
@@ -154,6 +158,7 @@ namespace Processor
             int instructionCount = 0;
             int mispredictions = 0;
             ExecuteUnit[][] executeUnits = new ExecuteUnit[][] { alus, loadStoreUnit, branchUnit };
+            ReservationStation[] rs = new ReservationStation[] { aluRs, lsRs, buRs };
             int cycles = 0;
             while (!finished)
             {
@@ -184,7 +189,8 @@ namespace Processor
                     if (executeFinishedQueue.Count > 0)
                     {
                         ReservationStationEntry entry = executeFinishedQueue.Dequeue();
-                        reservationStation.Broadcast(entry, lsq, rat);
+                        //reservationStation.Broadcast(entry, lsq, rat);
+                        rs.ToList().ForEach(x => x.Broadcast(entry, lsq, rat));
                         entry.destination.value = entry.result;
                         entry.destination.done = true;
                     }
@@ -199,15 +205,15 @@ namespace Processor
                 //int dispatchCounter = 0;
                 //foreach (var units in executeUnits)
                 //    Dispatch(units, ref dispatchCounter);
-                dispatchUnit.Run(reservationStation, alus, loadStoreUnit, branchUnit, width);
+                dispatchUnit.Run(rs, alus, loadStoreUnit, branchUnit, width);
 
                 // issue
                 for (int i = 0; i < width; i++)
                 {
-                    if (!reservationStation.CheckFull() && !rob.CheckFull() && instructionQueue.Count > 0)
+                    if (!rob.CheckFull() && instructionQueue.Count > 0)
                     {
-                        issueUnit.Run(instructionQueue.Dequeue(), rat, reservationStation, rob, ref pc, btb, lsq, instructionQueue, instructionCount);
-                        instructionCount++;
+                        issueUnit.Run(rat, rs, rob, ref pc, btb, lsq, instructionQueue, ref instructionCount);
+                        //instructionCount++;
                     }
                 }
 
@@ -216,7 +222,7 @@ namespace Processor
                 {
                     var instruction = fetchUnit.Run(ref pc, btb);
                     if(instruction != null)
-                        instructionQueue.Enqueue(instruction);
+                        instructionQueue.Add(instruction);
                 }
 
                 cycles++;

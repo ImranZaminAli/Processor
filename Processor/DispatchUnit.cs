@@ -19,11 +19,54 @@ namespace Processor
             }
             return null;
         }
-        public void Run(ReservationStation reservationStations, ExecuteUnit[] alus, ExecuteUnit[] loadStore, ExecuteUnit[] branchUnit, int width)
+        public void Run(ReservationStation[] reservationStations, ExecuteUnit[] alus, ExecuteUnit[] loadStore, ExecuteUnit[] branchUnit, int width)
         {
-            List<ReservationStationEntry> entries = reservationStations.Dispatch();
-            if (entries == null)
+            //List<ReservationStationEntry> entries = reservationStations.Dispatch();
+            //List<List<ReservationStationEntry>> freeEntries = reservationStations.ToList().ForEach(x => x.Dispatch())
+            List<List<ReservationStationEntry>> freeEntries = new List<List<ReservationStationEntry>>();
+            foreach(var rs in reservationStations)
+            {
+                freeEntries.Add(rs.Dispatch());
+            }
+            //if (entries == null)
+            //    return;
+
+            if (freeEntries.All(x => x == null))
                 return;
+
+            List < ReservationStationEntry > entries = new List<ReservationStationEntry>();
+
+            // get first two reservation station entries that have the lowest instruction count
+            for(int i = 0; i < 2; i++)
+            {
+                int min = int.MaxValue;
+                ReservationStationEntry minEntry = null;
+                List<ReservationStationEntry> allEntries = new List<ReservationStationEntry>();
+
+                // remove nulls from freeEntries
+                freeEntries.RemoveAll(x => x == null);
+
+                foreach (var idk in freeEntries) {
+                    idk.ForEach(x => allEntries.Add(x));
+                }
+                foreach (var entry in allEntries)
+                {
+                    if (entry == null)
+                        continue;
+
+                    if (entry.instructionCount < min)
+                    {
+                        min = entry.instructionCount;
+                        minEntry = entry;
+                    }
+                }
+
+                if (minEntry != null)
+                {
+                    entries.Add(minEntry);
+                    freeEntries.First(x => x.Contains(minEntry)).Remove(minEntry);
+                }
+            }
 
             int dispatchCounter = 0;
             foreach (var entry in entries)
