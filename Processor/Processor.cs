@@ -190,7 +190,8 @@ namespace Processor
                     {
                         ReservationStationEntry entry = executeFinishedQueue.Dequeue();
                         //reservationStation.Broadcast(entry, lsq, rat);
-                        rs.ToList().ForEach(x => x.Broadcast(entry, lsq, rat));
+                        foreach (var x in rs)
+                            x.Broadcast(entry, lsq, rat);
                         entry.destination.value = entry.result;
                         entry.destination.done = true;
                     }
